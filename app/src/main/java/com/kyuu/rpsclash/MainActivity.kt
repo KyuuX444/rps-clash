@@ -30,6 +30,7 @@ import com.kyuu.rpsclash.network.OnlineGameListener
 import com.kyuu.rpsclash.network.WebSocketManager
 import com.kyuu.rpsclash.ui.ScreenState
 import com.kyuu.rpsclash.ui.components.*
+import com.kyuu.rpsclash.ui.components.isFakeBoldText
 
 class MainActivity : AppCompatActivity(), OnlineGameListener {
 
@@ -1435,7 +1436,6 @@ class MainActivity : AppCompatActivity(), OnlineGameListener {
                 RPSApplication.instance.soundManager.playSfx(NativeBridge.SFX_TAP)
                 aText.visibility = if (isExpanded) View.VISIBLE else View.GONE
                 val iconRes = if (isExpanded) R.drawable.ic_chevron_up else R.drawable.ic_chevron_down
-                val arrow = headerRow.getChildAt(1) as ImageView
                 arrow.setImageDrawable(ContextCompat.getDrawable(context, iconRes))
             }
         }
