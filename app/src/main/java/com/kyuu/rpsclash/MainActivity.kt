@@ -1279,7 +1279,7 @@ class MainActivity : AppCompatActivity(), OnlineGameListener {
                 text = getString(R.string.guide_ai_text)
                 textSize = 13f
                 setTextColor(ContextCompat.getColor(context, R.color.text_secondary))
-                lineSpacingMultiplier = 1.3f
+                setLineSpacing(0f, 1.3f)
             }
             addView(aiText)
 
@@ -1300,7 +1300,7 @@ class MainActivity : AppCompatActivity(), OnlineGameListener {
                 text = getString(R.string.guide_online_text)
                 textSize = 13f
                 setTextColor(ContextCompat.getColor(context, R.color.text_secondary))
-                lineSpacingMultiplier = 1.3f
+                setLineSpacing(0f, 1.3f)
                 layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT).apply {
                     bottomMargin = 32
                 }
@@ -1398,6 +1398,11 @@ class MainActivity : AppCompatActivity(), OnlineGameListener {
 
             var isExpanded = false
 
+            val arrow = ImageView(context).apply {
+                layoutParams = LinearLayout.LayoutParams(28, 28)
+                setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_chevron_down))
+            }
+
             val headerRow = LinearLayout(context).apply {
                 orientation = LinearLayout.HORIZONTAL
                 gravity = Gravity.CENTER_VERTICAL
@@ -1410,11 +1415,6 @@ class MainActivity : AppCompatActivity(), OnlineGameListener {
                     layoutParams = LinearLayout.LayoutParams(0, WRAP_CONTENT, 1f)
                 }
                 addView(qText)
-
-                val arrow = ImageView(context).apply {
-                    layoutParams = LinearLayout.LayoutParams(28, 28)
-                    setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_chevron_down))
-                }
                 addView(arrow)
             }
             addView(headerRow)
@@ -1423,7 +1423,7 @@ class MainActivity : AppCompatActivity(), OnlineGameListener {
                 text = answer
                 textSize = 13f
                 setTextColor(ContextCompat.getColor(context, R.color.text_secondary))
-                lineSpacingMultiplier = 1.3f
+                setLineSpacing(0f, 1.3f)
                 visibility = View.GONE
                 layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT).apply {
                     topMargin = 16
