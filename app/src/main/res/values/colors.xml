@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Backgrounds -->
+    <color name="bg_main">#0A0E17</color>
+    <color name="bg_surface">#121826</color>
+    <color name="bg_surface_card">#1A2234</color>
+    <color name="bg_surface_elevated">#222C42</color>
+    <color name="bg_glass_stroke">#334155</color>
+    <color name="bg_arena">#070A10</color>
+
+    <!-- Neon Accents -->
+    <color name="neon_cyan">#00E5FF</color>
+    <color name="neon_cyan_dark">#00B0FF</color>
+    <color name="neon_cyan_glow">#3300E5FF</color>
+
+    <color name="neon_magenta">#D500F9</color>
+    <color name="neon_purple">#7C4DFF</color>
+    <color name="neon_magenta_glow">#33D500F9</color>
+
+    <color name="electric_gold">#FFD600</color>
+    <color name="gold_glow">#33FFD600</color>
+
+    <color name="emerald_win">#00E676</color>
+    <color name="win_glow">#3300E676</color>
+
+    <color name="ruby_lose">#FF1744</color>
+    <color name="lose_glow">#33FF1744</color>
+
+    <color name="amber_draw">#FF9100</color>
+    <color name="draw_glow">#33FF9100</color>
+
+    <!-- Text -->
+    <color name="text_primary">#F8FAFC</color>
+    <color name="text_secondary">#94A3B8</color>
+    <color name="text_muted">#64748B</color>
+
+    <!-- Moves -->
+    <color name="move_rock">#FF5252</color>
+    <color name="move_paper">#448AFF</color>
+    <color name="move_scissors">#69F0AE</color>
+
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+    <color name="transparent">#00000000</color>
+</resources>

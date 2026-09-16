@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">RPS Clash</string>
+    <string name="app_subtitle">Batu Gunting Kertas • Tactical Duel</string>
+
+    <!-- Main Menu -->
+    <string name="menu_vs_ai">VS AI</string>
+    <string name="menu_vs_ai_desc">Tantang AI adaptif secara offline</string>
+    <string name="menu_online">ONLINE</string>
+    <string name="menu_online_desc">Duel PvP real-time via WebSocket</string>
+    <string name="menu_stats">STATISTIK</string>
+    <string name="menu_how_to_play">CARA BERMAIN</string>
+    <string name="menu_faq">FAQ</string>
+    <string name="menu_about">TENTANG DEVELOPER</string>
+    <string name="menu_settings">PENGATURAN</string>
+
+    <!-- Game Setup -->
+    <string name="title_choose_difficulty">PILIH TINGKAT KESULITAN</string>
+    <string name="diff_easy">Mudah</string>
+    <string name="diff_easy_desc">AI santai dengan tebakan santai</string>
+    <string name="diff_normal">Normal</string>
+    <string name="diff_normal_desc">AI taktis membaca pola psikologis</string>
+    <string name="diff_hard">Hard</string>
+    <string name="diff_hard_desc">Algoritma Markov Chain prediksi adaptif</string>
+    <string name="title_match_format">FORMAT PERTANDINGAN</string>
+    <string name="format_bo3">Best of 3 (Target 2 Win)</string>
+    <string name="format_bo5">Best of 5 (Target 3 Win)</string>
+    <string name="btn_start_match">MULAI PERTANDINGAN</string>
+
+    <!-- In-Game -->
+    <string name="player_label">PLAYER</string>
+    <string name="ai_label">AI BOT</string>
+    <string name="opponent_label">LAWAN</string>
+    <string name="round_counter">RONDE %1$d</string>
+    <string name="status_choose_move">PILIH ELEMEN ANDA!</string>
+    <string name="status_opponent_choosing">Lawan sedang berpikir...</string>
+    <string name="status_revealing">MEMBUKA PILIHAN...</string>
+    <string name="move_rock">Batu</string>
+    <string name="move_paper">Kertas</string>
+    <string name="move_scissors">Gunting</string>
+    <string name="result_win">RONDE MENANG!</string>
+    <string name="result_lose">RONDE KALAH!</string>
+    <string name="result_draw">SERI / DRAW!</string>
+    <string name="match_victory">KEMENANGAN TELAK!</string>
+    <string name="match_defeat">KEKALAHAN TELAK!</string>
+    <string name="btn_rematch">REMATCH</string>
+    <string name="btn_exit_match">KELUAR</string>
+
+    <!-- Online -->
+    <string name="title_online_lobby">ONLINE MULTIPLAYER</string>
+    <string name="btn_quick_match">Quick Match</string>
+    <string name="btn_quick_match_desc">Cari lawan bertarung secara acak</string>
+    <string name="btn_create_room">Buat Room</string>
+    <string name="btn_create_room_desc">Buat room private dan bagikan kode</string>
+    <string name="btn_join_room">Gabung Room</string>
+    <string name="btn_join_room_desc">Masukkan 6 digit kode room teman</string>
+    <string name="title_waiting_room">WAITING ROOM</string>
+    <string name="room_code_label">KODE ROOM:</string>
+    <string name="btn_copy_code">Salin Kode</string>
+    <string name="waiting_for_opponent">Menunggu pemain lain bergabung...</string>
+    <string name="dialog_enter_room_code">Masukkan Kode Room</string>
+    <string name="input_code_hint">Contoh: K9X2P1</string>
+    <string name="btn_join">GABUNG</string>
+    <string name="btn_cancel">BATAL</string>
+    <string name="status_connected">Terhubung ke Server</string>
+    <string name="status_connecting">Menghubungkan ke Server...</string>
+    <string name="status_disconnected">Koneksi Terputus</string>
+    <string name="status_reconnecting">Menyambung ulang...</string>
+    <string name="server_url_label">WebSocket Server:</string>
+
+    <!-- Statistics -->
+    <string name="title_stats">STATISTIK PERMAINAN</string>
+    <string name="tab_vs_ai">VS AI</string>
+    <string name="tab_online">ONLINE</string>
+    <string name="stat_total_matches">Total Pertandingan</string>
+    <string name="stat_wins">Menang</string>
+    <string name="stat_losses">Kalah</string>
+    <string name="stat_draws">Seri</string>
+    <string name="stat_win_rate">Win Rate</string>
+    <string name="stat_current_streak">Win Streak Saat Ini</string>
+    <string name="stat_best_streak">Best Win Streak</string>
+    <string name="title_move_distribution">DISTRIBUSI PENGGUNAAN ELEMEN</string>
+    <string name="btn_reset_stats">RESET STATISTIK</string>
+    <string name="msg_stats_reset">Statistik berhasil di-reset.</string>
+
+    <!-- How To Play -->
+    <string name="title_how_to_play">CARA BERMAIN</string>
+    <string name="rule_rock_beats_scissors">Batu menghancurkan Gunting</string>
+    <string name="rule_scissors_beats_paper">Gunting memotong Kertas</string>
+    <string name="rule_paper_beats_rock">Kertas membungkus Batu</string>
+    <string name="guide_modes_title">Mode Permainan</string>
+    <string name="guide_ai_text">Mode VS AI sepenuhnya offline. AI memiliki 3 level: Mudah (eksploratif), Normal (taktik heuristik psikologis), dan Hard (prediksi pola Markov Chain sequence).</string>
+    <string name="guide_online_text">Mode Online real-time via WebSocket. Buat room pribadi dengan 6 karakter kode atau gunakan Quick Match. Seluruh move dan skor divalidasi server secara adil (authoritative).</string>
+
+    <!-- FAQ -->
+    <string name="title_faq">PERTANYAAN UMUM (FAQ)</string>
+    <string name="faq_q1">Bagaimana cara bermain Batu Gunting Kertas?</string>
+    <string name="faq_a1">Setiap ronde, pilih salah satu dari tiga elemen sebelum timer habis: Batu mengalahkan Gunting, Gunting mengalahkan Kertas, dan Kertas mengalahkan Batu. Jika kedua pemain memilih elemen yang sama, ronde dinyatakan seri (draw).</string>
+    <string name="faq_q2">Bagaimana cara kerja mode Online?</string>
+    <string name="faq_a2">Mode Online menghubungkan Anda ke server WebSocket berkecepatan tinggi. Anda bisa memilih Quick Match untuk mencari lawan otomatis, atau membuat Room dengan kode 6 karakter untuk bertanding bersama teman. Server mengontrol state dan hasil ronde secara netral.</string>
+    <string name="faq_q3">Apakah mode VS AI memerlukan koneksi internet?</string>
+    <string name="faq_a3">Sama sekali tidak! Seluruh logika game dan algoritma AI berjalan 100% lokal pada engine C++ di perangkat Anda tanpa membutuhkan internet.</string>
+    <string name="faq_q4">Apa yang terjadi jika koneksi internet terputus saat Online?</string>
+    <string name="faq_a4">Aplikasi memiliki sistem auto-reconnect cerdas dengan window 30 detik menggunakan session token unik. Jika Anda kembali online dalam waktu tersebut, match akan otomatis dilanjutkan tanpa kehilangan skor.</string>
+    <string name="faq_q5">Bagaimana cara kerja fitur Reconnect?</string>
+    <string name="faq_a5">Ketika koneksi terputus tiba-tiba, aplikasi menyimpan session token dan status room di memori. Klien langsung mencoba reconnect ke server di background dan melakukan handshake recovery.</string>
+    <string name="faq_q6">Apakah statistik permainan tersimpan setelah aplikasi ditutup?</string>
+    <string name="faq_a6">Ya. Statistik pertandingan (menang, kalah, seri, streak, dan distribusi elemen) disimpan secara permanen di local storage internal C++ dan tidak akan hilang saat aplikasi ditutup maupun restart perangkat.</string>
+    <string name="faq_q7">Bagaimana cara melaporkan bug atau memberikan saran?</string>
+    <string name="faq_a7">Anda dapat membuka tab \"Tentang Developer\" dan menghubungi developer Kyuu langsung melalui GitHub (KyuuX444) atau Instagram (@kyzzapis).</string>
+
+    <!-- About Developer -->
+    <string name="title_about">TENTANG DEVELOPER</string>
+    <string name="dev_name_label">Developer</string>
+    <string name="dev_name">Kyuu</string>
+    <string name="dev_role">Mobile &amp; Systems Engineer</string>
+    <string name="dev_quote">"Crafting fast, clean, and high-performance native software experiences."</string>
+    <string name="github_label">GitHub</string>
+    <string name="github_handle">KyuuX444</string>
+    <string name="youtube_label">YouTube</string>
+    <string name="youtube_handle">mommyykyuu</string>
+    <string name="instagram_label">Instagram</string>
+    <string name="instagram_handle">Kyzz Apis</string>
+
+    <!-- Settings -->
+    <string name="title_settings">PENGATURAN</string>
+    <string name="setting_music">Musik Latar (BGM)</string>
+    <string name="setting_sfx">Efek Suara (SFX)</string>
+    <string name="setting_haptic">Getaran Haptic Feedback</string>
+    <string name="setting_music_vol">Volume Musik</string>
+    <string name="setting_sfx_vol">Volume SFX</string>
+    <string name="setting_haptic_intensity">Intensitas Haptic</string>
+    <string name="setting_animations">Animasi Halus (60 FPS)</string>
+    <string name="btn_reset_settings">RESET SEMUA PENGATURAN</string>
+
+    <!-- Error messages -->
+    <string name="error_no_internet">Tidak ada koneksi internet. Silakan periksa koneksi data atau Wi-Fi Anda.</string>
+    <string name="error_server_offline">Server WebSocket sedang offline atau tidak dapat dijangkau.</string>
+    <string name="error_room_not_found">Room dengan kode tersebut tidak ditemukan.</string>
+    <string name="error_room_full">Room sudah penuh (maksimal 2 pemain).</string>
+    <string name="error_opponent_disconnected">Lawan Anda terputus dari server. Anda memenangkan match ini!</string>
+    <string name="error_timeout">Waktu ronde habis!</string>
+    <string name="code_copied">Kode room berhasil disalin ke clipboard!</string>
+</resources>
