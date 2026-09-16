@@ -13,7 +13,7 @@
 - **Sistem Audio Native Modular**: Background music ambient synth lo-fi loop dan sound effect dinamis (tap, select, countdown, win, lose, draw, match end).
 - **Subtle Haptic Feedback Bridge**: Integrasi getaran taktil halus melalui C++ ↔ Android Native `Vibrator` / `VibrationEffect`.
 - **Statistik Lengkap & Persisten**: Disimpan di internal storage lokal C++ tanpa reset tidak sengaja, terpisah untuk mode VS AI dan Online, lengkap dengan visualisasi persentase penggunaan elemen (Batu, Kertas, Gunting).
-- **Desain UI Game-like & Elegan**: Visual bertema dark modern/neon, custom vector drawables (tanpa emoji placeholder), arena clash dinamis 60 FPS, dan navigasi mulus.
+- **Desain UI Game-like & Elegan**: Visual bertema dark obsidian matte minimal, custom vector drawables (tanpa emoji placeholder), arena clash dinamis 60 FPS, dan navigasi mulus.
 
 ---
 
