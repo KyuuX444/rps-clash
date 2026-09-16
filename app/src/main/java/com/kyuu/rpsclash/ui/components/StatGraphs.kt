@@ -15,9 +15,9 @@ class MoveDistributionBarView @JvmOverloads constructor(
     defStyleAttr: Int = 0
 ) : View(context, attrs, defStyleAttr) {
 
-    private val rockPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = Color.parseColor("#FF5252") }
-    private val paperPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = Color.parseColor("#448AFF") }
-    private val scissorsPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = Color.parseColor("#69F0AE") }
+    private val rockPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = Color.parseColor("#F43F5E") }
+    private val paperPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = Color.parseColor("#38BDF8") }
+    private val scissorsPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = Color.parseColor("#34D399") }
 
     private var rockRatio: Float = 0.333f
     private var paperRatio: Float = 0.333f
@@ -49,7 +49,6 @@ class MoveDistributionBarView @JvmOverloads constructor(
 
         // Draw segmented rounded bar
         canvas.save()
-        // Clip to rounded rect
         val bounds = RectF(0f, 0f, w, h)
         // Rock segment
         canvas.drawRoundRect(bounds, r, r, rockPaint)
@@ -74,28 +73,29 @@ class WinRateGaugeView @JvmOverloads constructor(
 
     private val bgPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.STROKE
-        strokeWidth = 16f
-        color = Color.parseColor("#1E293B")
+        strokeWidth = 14f
+        color = Color.parseColor("#1E2C44")
     }
 
     private val progressPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.STROKE
-        strokeWidth = 16f
+        strokeWidth = 14f
         color = Color.parseColor("#00E5FF")
         strokeCap = Paint.Cap.ROUND
     }
 
     private val textPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         color = Color.WHITE
-        textSize = 42f
+        textSize = 40f
         textAlign = Paint.Align.CENTER
         isFakeBoldText = true
     }
 
     private val labelPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         color = Color.parseColor("#94A3B8")
-        textSize = 22f
+        textSize = 20f
         textAlign = Paint.Align.CENTER
+        letterSpacing = 0.1f
     }
 
     private var winRate: Float = 0.0f
@@ -114,7 +114,7 @@ class WinRateGaugeView @JvmOverloads constructor(
 
         val oval = RectF(cx - radius, cy - radius, cx + radius, cy + radius)
 
-        // Background Circle
+        // Background Arc
         canvas.drawArc(oval, 135f, 270f, false, bgPaint)
 
         // Progress Arc
@@ -123,7 +123,7 @@ class WinRateGaugeView @JvmOverloads constructor(
 
         // Text
         val rateText = String.format("%.1f%%", winRate)
-        canvas.drawText(rateText, cx, cy + 12f, textPaint)
-        canvas.drawText("WIN RATE", cx, cy + 42f, labelPaint)
+        canvas.drawText(rateText, cx, cy + 10f, textPaint)
+        canvas.drawText("WIN RATE", cx, cy + 38f, labelPaint)
     }
 }

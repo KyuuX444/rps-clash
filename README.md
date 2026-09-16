@@ -36,11 +36,11 @@ Proyek ini telah dilengkapi dengan workflow CI/CD otomatis di `.github/workflows
    - Begitu Anda melakukan `git push`, GitHub Actions akan otomatis mendeteksi file `.github/workflows/build-apk.yml`.
    - Workflow akan mengunduh Java 17, Android SDK 34, Android NDK `26.1.10909125`, dan CMake `3.22.1`.
    - Menjalankan `./gradlew assembleDebug` dan mengompilasi shared library C++ `libgamecore.so`.
-3. **Mengunduh File APK**:
-   - Buka tab **Actions** di repository GitHub Anda.
-   - Klik workflow run yang sedang atau selesai berjalan.
-   - Di bagian bawah halaman (bagian **Artifacts**), Anda dapat langsung mengunduh:
-     - `RPSClash-Debug-APK` (File `.apk` siap diinstal di ponsel Android mana pun).
+3. **Mengunduh File APK dari GitHub Releases**:
+   - Buka tab **Releases** di repository GitHub: `https://github.com/KyuuX444/rps-clash/releases`
+   - Tersedia dua file APK siap pakai:
+     - 🌟 **`app-release.apk`**: APK Production Release resmi yang sudah ditandatangani (*signed release*) dengan keystore produksi.
+     - 🛠️ **`app-debug.apk`**: APK versi debug untuk pengujian dan development.
 
 ---
 
@@ -57,11 +57,13 @@ Proyek ini telah dilengkapi dengan workflow CI/CD otomatis di `.github/workflows
 # Memberikan izin eksekusi gradlew
 chmod +x gradlew
 
+# Build Signed Release APK
+./gradlew assembleRelease
+# Output: app/build/outputs/apk/release/app-release.apk
+
 # Build Debug APK
 ./gradlew assembleDebug
-
-# Output APK berlokasi di:
-# app/build/outputs/apk/debug/app-debug.apk
+# Output: app/build/outputs/apk/debug/app-debug.apk
 ```
 
 ### Membuka di Android Studio:

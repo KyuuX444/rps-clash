@@ -1,5 +1,6 @@
 package com.kyuu.rpsclash
 
+import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
 import android.content.ClipData
 import android.content.ClipboardManager
@@ -7,6 +8,7 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.Typeface
+import android.graphics.drawable.GradientDrawable
 import android.net.Uri
 import android.os.Bundle
 import android.os.CountDownTimer
@@ -18,6 +20,7 @@ import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.view.animation.AccelerateDecelerateInterpolator
+import android.view.animation.OvershootInterpolator
 import android.widget.*
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
@@ -30,7 +33,6 @@ import com.kyuu.rpsclash.network.OnlineGameListener
 import com.kyuu.rpsclash.network.WebSocketManager
 import com.kyuu.rpsclash.ui.ScreenState
 import com.kyuu.rpsclash.ui.components.*
-import com.kyuu.rpsclash.ui.components.isFakeBoldText
 
 class MainActivity : AppCompatActivity(), OnlineGameListener {
 
@@ -43,6 +45,7 @@ class MainActivity : AppCompatActivity(), OnlineGameListener {
     private var vsAiDifficulty = NativeBridge.DIFF_NORMAL
     private var selectedMoveThisRound = NativeBridge.MOVE_NONE
     private var roundTimer: CountDownTimer? = null
+    private var currentMatchRound = 1
 
     // Tracking match moves for stats
     private var matchRockCount = 0
@@ -141,13 +144,12 @@ class MainActivity : AppCompatActivity(), OnlineGameListener {
             setPadding(48, 48, 48, 48)
 
             val logo = ImageView(context).apply {
-                layoutParams = LinearLayout.LayoutParams(160, 160).apply { bottomMargin = 24 }
+                layoutParams = LinearLayout.LayoutParams(140, 140).apply { bottomMargin = 20 }
                 setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_logo))
             }
             addView(logo)
 
-            // Pulse animation for logo
-            val animator = ValueAnimator.ofFloat(0.92f, 1.08f).apply {
+            val animator = ValueAnimator.ofFloat(0.94f, 1.06f).apply {
                 duration = 800
                 repeatCount = ValueAnimator.INFINITE
                 repeatMode = ValueAnimator.REVERSE
@@ -162,35 +164,36 @@ class MainActivity : AppCompatActivity(), OnlineGameListener {
 
             val title = TextView(context).apply {
                 text = "RPS CLASH"
-                textSize = 34f
-                setTextColor(ContextCompat.getColor(context, R.color.neon_cyan))
+                textSize = 32f
+                setTextColor(ContextCompat.getColor(context, R.color.accent_primary))
                 isFakeBoldText = true
-                letterSpacing = 0.1f
+                letterSpacing = 0.12f
             }
             addView(title)
 
             val subtitle = TextView(context).apply {
-                text = getString(R.string.app_subtitle)
-                textSize = 13f
+                text = "THE NATIVE ARENA"
+                textSize = 12f
                 setTextColor(ContextCompat.getColor(context, R.color.text_secondary))
+                letterSpacing = 0.18f
                 layoutParams = LinearLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT).apply {
-                    topMargin = 8
-                    bottomMargin = 48
+                    topMargin = 6
+                    bottomMargin = 40
                 }
             }
             addView(subtitle)
 
             val progressBar = ProgressBar(context).apply {
-                indeterminateTintList = ContextCompat.getColorStateList(context, R.color.neon_cyan)
+                indeterminateTintList = ContextCompat.getColorStateList(context, R.color.accent_primary)
             }
             addView(progressBar)
 
             val version = TextView(context).apply {
-                text = "v1.0.0 • Native C++ Core Engine"
+                text = "v1.0.0 • C++20 Core NDK"
                 textSize = 11f
                 setTextColor(ContextCompat.getColor(context, R.color.text_muted))
                 layoutParams = LinearLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT).apply {
-                    topMargin = 40
+                    topMargin = 32
                 }
             }
             addView(version)
@@ -206,11 +209,11 @@ class MainActivity : AppCompatActivity(), OnlineGameListener {
             if (currentScreen == ScreenState.SPLASH) {
                 navigateTo(ScreenState.HOME)
             }
-        }, 1800)
+        }, 1600)
     }
 
     // =========================================================================
-    // 2. HOME SCREEN
+    // 2. HOME SCREEN (Hierarchy: Logo -> Play -> Online -> Stats -> Other)
     // =========================================================================
     private fun showHomeScreen() {
         val scroll = ScrollView(this).apply {
@@ -221,11 +224,11 @@ class MainActivity : AppCompatActivity(), OnlineGameListener {
         val homeLayout = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             gravity = Gravity.CENTER_HORIZONTAL
-            setPadding(36, 48, 36, 48)
+            setPadding(32, 44, 32, 36)
 
-            // Header Logo & Title
+            // 1. Logo & Identity
             val logo = ImageView(context).apply {
-                layoutParams = LinearLayout.LayoutParams(80, 80).apply { bottomMargin = 12 }
+                layoutParams = LinearLayout.LayoutParams(72, 72).apply { bottomMargin = 10 }
                 setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_logo))
             }
             addView(logo)
@@ -233,131 +236,146 @@ class MainActivity : AppCompatActivity(), OnlineGameListener {
             val title = TextView(context).apply {
                 text = "RPS CLASH"
                 textSize = 28f
-                setTextColor(ContextCompat.getColor(context, R.color.neon_cyan))
+                setTextColor(ContextCompat.getColor(context, R.color.accent_primary))
                 isFakeBoldText = true
+                letterSpacing = 0.08f
             }
             addView(title)
 
             val tag = TextView(context).apply {
                 text = "BATU • GUNTING • KERTAS"
-                textSize = 12f
+                textSize = 11f
                 setTextColor(ContextCompat.getColor(context, R.color.text_secondary))
+                letterSpacing = 0.15f
                 layoutParams = LinearLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT).apply {
+                    topMargin = 4
                     bottomMargin = 32
                 }
             }
             addView(tag)
 
-            // Main Play Modes
-            addView(createBigActionCard(
+            // 2. Play - VS AI Button
+            addView(createMainPlayButton(
                 title = "VS AI (OFFLINE)",
-                desc = "Lawan AI taktis dengan Markov Chain engine",
-                badge = "OFFLINE",
-                badgeColor = "#00E676",
-                accentHex = "#00E5FF"
+                subtitle = "Tantang AI Markov Chain",
+                badgeText = "OFFLINE",
+                isPrimary = true
             ) {
                 navigateTo(ScreenState.VS_AI_SETUP)
             })
 
-            addView(createBigActionCard(
+            // 3. Online - Multiplayer Button
+            addView(createMainPlayButton(
                 title = "ONLINE MULTIPLAYER",
-                desc = "Duel PvP real-time via WebSocket room",
-                badge = "REAL-TIME",
-                badgeColor = "#D500F9",
-                accentHex = "#D500F9"
+                subtitle = "Duel Real-Time via Room",
+                badgeText = "PVP",
+                isPrimary = false
             ) {
                 navigateTo(ScreenState.ONLINE_LOBBY)
             })
 
-            // Secondary Menu Grid
-            val menuGrid = LinearLayout(context).apply {
-                orientation = LinearLayout.VERTICAL
+            // 4. Other Navigation (Stats, How to Play, FAQ, About, Settings)
+            val navSectionTitle = TextView(context).apply {
+                text = "MENU & INFORMASI"
+                textSize = 11f
+                setTextColor(ContextCompat.getColor(context, R.color.text_muted))
+                isFakeBoldText = true
+                letterSpacing = 0.1f
                 layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT).apply {
-                    topMargin = 16
+                    topMargin = 20
+                    bottomMargin = 12
                 }
             }
+            addView(navSectionTitle)
 
-            val row1 = LinearLayout(context).apply {
+            // Row 1: Statistik & Cara Bermain
+            val navRow1 = LinearLayout(context).apply {
                 orientation = LinearLayout.HORIZONTAL
                 weightSum = 2f
-                layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT).apply { bottomMargin = 12 }
-                addView(createSmallActionCard("STATISTIK", R.drawable.ic_trophy) { navigateTo(ScreenState.STATS) })
-                addView(createSmallActionCard("CARA BERMAIN", R.drawable.ic_vs) { navigateTo(ScreenState.HOW_TO_PLAY) })
+                layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT).apply {
+                    bottomMargin = 10
+                }
+                addView(createNavTile("Statistik", R.drawable.ic_chart) { navigateTo(ScreenState.STATS) })
+                addView(createNavTile("Cara Main", R.drawable.ic_guide) { navigateTo(ScreenState.HOW_TO_PLAY) })
             }
-            menuGrid.addView(row1)
+            addView(navRow1)
 
-            val row2 = LinearLayout(context).apply {
+            // Row 2: FAQ & Developer
+            val navRow2 = LinearLayout(context).apply {
                 orientation = LinearLayout.HORIZONTAL
                 weightSum = 2f
-                layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT).apply { bottomMargin = 12 }
-                addView(createSmallActionCard("FAQ", R.drawable.ic_chevron_down) { navigateTo(ScreenState.FAQ) })
-                addView(createSmallActionCard("DEVELOPER", R.drawable.ic_github) { navigateTo(ScreenState.ABOUT) })
+                layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT).apply {
+                    bottomMargin = 10
+                }
+                addView(createNavTile("FAQ", R.drawable.ic_help) { navigateTo(ScreenState.FAQ) })
+                addView(createNavTile("Developer", R.drawable.ic_github) { navigateTo(ScreenState.ABOUT) })
             }
-            menuGrid.addView(row2)
+            addView(navRow2)
 
-            val row3 = LinearLayout(context).apply {
+            // Row 3: Pengaturan (Full Width)
+            val navRow3 = LinearLayout(context).apply {
                 orientation = LinearLayout.HORIZONTAL
                 weightSum = 1f
-                addView(createSmallActionCard("PENGATURAN", R.drawable.ic_rock) { navigateTo(ScreenState.SETTINGS) })
+                layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT)
+                addView(createNavTile("Pengaturan Game", R.drawable.ic_settings) { navigateTo(ScreenState.SETTINGS) })
             }
-            menuGrid.addView(row3)
-
-            addView(menuGrid)
+            addView(navRow3)
         }
 
         scroll.addView(homeLayout)
         rootContainer.addView(scroll)
     }
 
-    private fun createBigActionCard(
+    private fun createMainPlayButton(
         title: String,
-        desc: String,
-        badge: String,
-        badgeColor: String,
-        accentHex: String,
+        subtitle: String,
+        badgeText: String,
+        isPrimary: Boolean,
         onClick: () -> Unit
     ): View {
         return LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            setBackgroundResource(R.drawable.bg_card_glass)
-            setPadding(32, 28, 32, 28)
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+            setBackgroundResource(if (isPrimary) R.drawable.bg_button_primary else R.drawable.bg_card_glass)
+            setPadding(24, 20, 24, 20)
             layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT).apply {
-                bottomMargin = 20
+                bottomMargin = 16
             }
 
-            val topRow = LinearLayout(context).apply {
-                orientation = LinearLayout.HORIZONTAL
-                gravity = Gravity.CENTER_VERTICAL
+            val col = LinearLayout(context).apply {
+                orientation = LinearLayout.VERTICAL
+                layoutParams = LinearLayout.LayoutParams(0, WRAP_CONTENT, 1f)
 
-                val titleView = TextView(context).apply {
+                val t = TextView(context).apply {
                     text = title
-                    textSize = 18f
-                    setTextColor(Color.parseColor(accentHex))
+                    textSize = 16f
+                    setTextColor(if (isPrimary) Color.BLACK else Color.WHITE)
                     isFakeBoldText = true
-                    layoutParams = LinearLayout.LayoutParams(0, WRAP_CONTENT, 1f)
+                    letterSpacing = 0.04f
                 }
-                addView(titleView)
+                addView(t)
 
-                val badgeView = TextView(context).apply {
-                    text = badge
-                    textSize = 10f
-                    setTextColor(Color.parseColor(badgeColor))
-                    setBackgroundResource(R.drawable.bg_pill)
-                    setPadding(16, 6, 16, 6)
+                val s = TextView(context).apply {
+                    text = subtitle
+                    textSize = 12f
+                    setTextColor(if (isPrimary) Color.parseColor("#131B2A") else ContextCompat.getColor(context, R.color.text_secondary))
+                    layoutParams = LinearLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT).apply {
+                        topMargin = 2
+                    }
                 }
-                addView(badgeView)
+                addView(s)
             }
-            addView(topRow)
+            addView(col)
 
-            val descView = TextView(context).apply {
-                text = desc
-                textSize = 13f
-                setTextColor(ContextCompat.getColor(context, R.color.text_secondary))
-                layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT).apply {
-                    topMargin = 10
-                }
+            val badge = TextView(context).apply {
+                text = badgeText
+                textSize = 10f
+                isFakeBoldText = true
+                setTextColor(if (isPrimary) Color.BLACK else ContextCompat.getColor(context, R.color.accent_secondary))
+                setBackgroundResource(R.drawable.bg_pill)
+                setPadding(16, 6, 16, 6)
             }
-            addView(descView)
+            addView(badge)
 
             setOnClickListener {
                 RPSApplication.instance.hapticManager.trigger(NativeBridge.HAPTIC_BUTTON_PRESS)
@@ -367,29 +385,29 @@ class MainActivity : AppCompatActivity(), OnlineGameListener {
         }
     }
 
-    private fun createSmallActionCard(title: String, iconRes: Int, onClick: () -> Unit): View {
+    private fun createNavTile(title: String, iconRes: Int, onClick: () -> Unit): View {
         return LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            gravity = Gravity.CENTER
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
             setBackgroundResource(R.drawable.bg_card_surface)
-            setPadding(24, 24, 24, 24)
+            setPadding(18, 16, 18, 16)
             layoutParams = LinearLayout.LayoutParams(0, WRAP_CONTENT, 1f).apply {
-                setMargins(8, 0, 8, 0)
+                setMargins(6, 0, 6, 0)
             }
 
             val icon = ImageView(context).apply {
-                layoutParams = LinearLayout.LayoutParams(40, 40).apply { bottomMargin = 8 }
+                layoutParams = LinearLayout.LayoutParams(26, 26).apply { marginEnd = 12 }
                 setImageDrawable(ContextCompat.getDrawable(context, iconRes))
             }
             addView(icon)
 
-            val titleView = TextView(context).apply {
+            val t = TextView(context).apply {
                 text = title
                 textSize = 13f
                 setTextColor(Color.WHITE)
-                gravity = Gravity.CENTER
+                isFakeBoldText = true
             }
-            addView(titleView)
+            addView(t)
 
             setOnClickListener {
                 RPSApplication.instance.hapticManager.trigger(NativeBridge.HAPTIC_BUTTON_PRESS)
@@ -410,20 +428,20 @@ class MainActivity : AppCompatActivity(), OnlineGameListener {
 
         val layout = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            setPadding(36, 40, 36, 40)
+            setPadding(32, 36, 32, 36)
 
-            // Top Bar
             addView(createTopBar("PENGATURAN MATCH AI") { navigateTo(ScreenState.HOME) })
 
             // Difficulty Section
             val diffTitle = TextView(context).apply {
-                text = getString(R.string.title_choose_difficulty)
-                textSize = 13f
-                setTextColor(ContextCompat.getColor(context, R.color.neon_cyan))
+                text = "TINGKAT KESULITAN"
+                textSize = 12f
+                setTextColor(ContextCompat.getColor(context, R.color.accent_primary))
                 isFakeBoldText = true
+                letterSpacing = 0.08f
                 layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT).apply {
-                    topMargin = 32
-                    bottomMargin = 16
+                    topMargin = 24
+                    bottomMargin = 12
                 }
             }
             addView(diffTitle)
@@ -434,18 +452,18 @@ class MainActivity : AppCompatActivity(), OnlineGameListener {
 
             fun updateDiffCards(selected: Int) {
                 vsAiDifficulty = selected
-                diffEasyCard?.alpha = if (selected == NativeBridge.DIFF_EASY) 1.0f else 0.5f
-                diffNormalCard?.alpha = if (selected == NativeBridge.DIFF_NORMAL) 1.0f else 0.5f
-                diffHardCard?.alpha = if (selected == NativeBridge.DIFF_HARD) 1.0f else 0.5f
+                diffEasyCard?.alpha = if (selected == NativeBridge.DIFF_EASY) 1.0f else 0.45f
+                diffNormalCard?.alpha = if (selected == NativeBridge.DIFF_NORMAL) 1.0f else 0.45f
+                diffHardCard?.alpha = if (selected == NativeBridge.DIFF_HARD) 1.0f else 0.45f
             }
 
-            diffEasyCard = createSelectableCard("MUDAH", getString(R.string.diff_easy_desc), "#00E676") {
+            diffEasyCard = createSelectableCard("MUDAH", "Pola acak murni, cocok untuk latihan awal", "#10B981") {
                 updateDiffCards(NativeBridge.DIFF_EASY)
             }
-            diffNormalCard = createSelectableCard("NORMAL", getString(R.string.diff_normal_desc), "#00E5FF") {
+            diffNormalCard = createSelectableCard("NORMAL", "Adaptif dengan Win-Stay Lose-Shift heuristic", "#00E5FF") {
                 updateDiffCards(NativeBridge.DIFF_NORMAL)
             }
-            diffHardCard = createSelectableCard("HARD (MARKOV CHAIN)", getString(R.string.diff_hard_desc), "#D500F9") {
+            diffHardCard = createSelectableCard("HARD (MARKOV CHAIN)", "Prediksi urutan move menggunakan N-Gram Markov Model", "#8B5CF6") {
                 updateDiffCards(NativeBridge.DIFF_HARD)
             }
 
@@ -456,13 +474,14 @@ class MainActivity : AppCompatActivity(), OnlineGameListener {
 
             // Format Section
             val formatTitle = TextView(context).apply {
-                text = getString(R.string.title_match_format)
-                textSize = 13f
-                setTextColor(ContextCompat.getColor(context, R.color.neon_cyan))
+                text = "FORMAT PERTANDINGAN"
+                textSize = 12f
+                setTextColor(ContextCompat.getColor(context, R.color.accent_primary))
                 isFakeBoldText = true
+                letterSpacing = 0.08f
                 layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT).apply {
-                    topMargin = 28
-                    bottomMargin = 16
+                    topMargin = 20
+                    bottomMargin = 12
                 }
             }
             addView(formatTitle)
@@ -472,14 +491,14 @@ class MainActivity : AppCompatActivity(), OnlineGameListener {
 
             fun updateFormatCards(bo: Int) {
                 vsAiBestOf = bo
-                bo3Card?.alpha = if (bo == 3) 1.0f else 0.5f
-                bo5Card?.alpha = if (bo == 5) 1.0f else 0.5f
+                bo3Card?.alpha = if (bo == 3) 1.0f else 0.45f
+                bo5Card?.alpha = if (bo == 5) 1.0f else 0.45f
             }
 
-            bo3Card = createSelectableCard("BEST OF 3", "Pemenang pertama yang mencapai 2 poin", "#FFD600") {
+            bo3Card = createSelectableCard("BEST OF 3", "Pemenang pertama yang mencapai 2 poin", "#F59E0B") {
                 updateFormatCards(3)
             }
-            bo5Card = createSelectableCard("BEST OF 5", "Pemenang pertama yang mencapai 3 poin", "#FF9100") {
+            bo5Card = createSelectableCard("BEST OF 5", "Pemenang pertama yang mencapai 3 poin", "#F97316") {
                 updateFormatCards(5)
             }
             addView(bo3Card)
@@ -488,12 +507,12 @@ class MainActivity : AppCompatActivity(), OnlineGameListener {
 
             // Start Match Button
             val btnStart = Button(context).apply {
-                text = getString(R.string.btn_start_match)
+                text = "MULAI PERTANDINGAN"
                 setTextColor(Color.BLACK)
                 isFakeBoldText = true
                 setBackgroundResource(R.drawable.bg_button_primary)
-                layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT).apply {
-                    topMargin = 40
+                layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, 116).apply {
+                    topMargin = 32
                 }
                 setOnClickListener {
                     RPSApplication.instance.soundManager.playSfx(NativeBridge.SFX_MATCH_START)
@@ -511,14 +530,14 @@ class MainActivity : AppCompatActivity(), OnlineGameListener {
         return LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             setBackgroundResource(R.drawable.bg_card_surface)
-            setPadding(28, 20, 28, 20)
+            setPadding(24, 18, 24, 18)
             layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT).apply {
-                bottomMargin = 12
+                bottomMargin = 10
             }
 
             val titleView = TextView(context).apply {
                 text = title
-                textSize = 15f
+                textSize = 14f
                 setTextColor(Color.parseColor(accentHex))
                 isFakeBoldText = true
             }
@@ -543,35 +562,45 @@ class MainActivity : AppCompatActivity(), OnlineGameListener {
     }
 
     // =========================================================================
-    // 4. VS AI MATCH SCREEN
+    // 4. GAME SCREEN: VS AI MATCH
+    // Hierarchy: Opponent -> Score -> Round / Countdown -> Arena -> Player -> Moves
     // =========================================================================
     private fun showVsAiMatchScreen() {
-        // Reset match stats in C++
         NativeBridge.startNewVsAiMatch(vsAiBestOf)
         matchRockCount = 0
         matchPaperCount = 0
         matchScissorsCount = 0
+        currentMatchRound = 1
 
         val layout = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             layoutParams = FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT)
-            setPadding(32, 28, 32, 28)
+            setPadding(24, 20, 24, 20)
         }
 
-        // Top Bar
+        // Top Navigation Bar
         val topBar = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
             gravity = Gravity.CENTER_VERTICAL
+            layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT).apply {
+                bottomMargin = 10
+            }
 
             val btnExit = ImageView(context).apply {
+                layoutParams = LinearLayout.LayoutParams(32, 32)
                 setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_arrow_back))
                 setOnClickListener {
-                    CustomDialogs.showErrorDialog(this@MainActivity, "Keluar", "Keluar dari pertandingan?") {
+                    CustomDialogs.showErrorDialog(this@MainActivity, "Keluar", "Tinggalkan pertandingan?") {
                         navigateTo(ScreenState.HOME)
                     }
                 }
             }
             addView(btnExit)
+
+            val spacer = View(context).apply {
+                layoutParams = LinearLayout.LayoutParams(0, 0, 1f)
+            }
+            addView(spacer)
 
             val diffBadge = TextView(context).apply {
                 val diffStr = when (vsAiDifficulty) {
@@ -580,54 +609,38 @@ class MainActivity : AppCompatActivity(), OnlineGameListener {
                     else -> "AI: HARD"
                 }
                 text = diffStr
-                textSize = 12f
-                setTextColor(ContextCompat.getColor(context, R.color.neon_cyan))
+                textSize = 11f
+                setTextColor(ContextCompat.getColor(context, R.color.accent_primary))
                 setBackgroundResource(R.drawable.bg_pill)
-                setPadding(24, 6, 24, 6)
-                layoutParams = LinearLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT).apply {
-                    marginStart = 20
-                }
+                setPadding(18, 5, 18, 5)
             }
             addView(diffBadge)
         }
         layout.addView(topBar)
 
-        // Scoreboard
+        // 1 & 2 & 3. Opponent -> Big Score -> Round Status
         val targetWins = if (vsAiBestOf == 5) 3 else 2
         val scoreBoard = ScoreBoardView(this).apply {
-            layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT).apply {
-                topMargin = 16
-                bottomMargin = 16
-            }
             setNames("PLAYER", "AI BOT")
             setupTargetDots(targetWins)
             updateScore(0, 0, 1)
         }
         layout.addView(scoreBoard)
 
-        // Arena View (Clashing Hands)
+        // 4. Game Arena (Clashing Hands in battle circle)
         val arenaView = ArenaHandsView(this).apply {
             layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, 0, 1f)
         }
         layout.addView(arenaView)
 
-        // Status & Countdown
-        val statusText = TextView(this).apply {
-            text = getString(R.string.status_choose_move)
-            textSize = 15f
-            setTextColor(Color.WHITE)
-            isFakeBoldText = true
-            gravity = Gravity.CENTER
-            layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT).apply {
-                bottomMargin = 16
-            }
-        }
-        layout.addView(statusText)
+        // 5. Player Info (Avatar, Name, Dots)
+        val playerStatusView = scoreBoard.createPlayerStatusView()
+        layout.addView(playerStatusView)
 
-        // Move Selection Cards
+        // 6. Rock Paper Scissors Moves
         val moveCards = MoveCardsView(this).apply {
             layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT).apply {
-                bottomMargin = 16
+                bottomMargin = 8
             }
         }
         layout.addView(moveCards)
@@ -637,7 +650,7 @@ class MainActivity : AppCompatActivity(), OnlineGameListener {
         // Round resolution logic
         fun startVsAiRound(playerMove: Int) {
             moveCards.isEnabledSelection = false
-            statusText.text = getString(R.string.status_revealing)
+            scoreBoard.setRoundStatus("MEMILIH ELEMEN...")
 
             when (playerMove) {
                 NativeBridge.MOVE_ROCK -> matchRockCount++
@@ -658,30 +671,29 @@ class MainActivity : AppCompatActivity(), OnlineGameListener {
             arenaView.startClashAnimation(playerMove, aiMove, roundRes) {
                 when (roundRes) {
                     NativeBridge.RESULT_WIN -> {
-                        statusText.text = getString(R.string.result_win)
-                        statusText.setTextColor(ContextCompat.getColor(this, R.color.emerald_win))
+                        scoreBoard.setRoundStatus("MENANG RONDE INI!", "#10B981")
                         RPSApplication.instance.soundManager.playSfx(NativeBridge.SFX_WIN)
                         RPSApplication.instance.hapticManager.trigger(NativeBridge.HAPTIC_WIN)
                     }
                     NativeBridge.RESULT_LOSE -> {
-                        statusText.text = getString(R.string.result_lose)
-                        statusText.setTextColor(ContextCompat.getColor(this, R.color.ruby_lose))
+                        scoreBoard.setRoundStatus("KALAH RONDE INI!", "#EF4444")
                         RPSApplication.instance.soundManager.playSfx(NativeBridge.SFX_LOSE)
                         RPSApplication.instance.hapticManager.trigger(NativeBridge.HAPTIC_LOSE)
                     }
                     else -> {
-                        statusText.text = getString(R.string.result_draw)
-                        statusText.setTextColor(ContextCompat.getColor(this, R.color.amber_draw))
+                        scoreBoard.setRoundStatus("RONDE SERI!", "#F59E0B")
                         RPSApplication.instance.soundManager.playSfx(NativeBridge.SFX_DRAW)
                         RPSApplication.instance.hapticManager.trigger(NativeBridge.HAPTIC_DRAW)
                     }
                 }
 
                 scoreBoard.updateScore(pScore, aiScore, nextRound)
+                currentMatchRound = nextRound
 
                 if (isGameOver) {
                     val won = pScore > aiScore
-                    val draws = (pScore + aiScore) // approx draw count
+                    val matchRes = if (won) NativeBridge.RESULT_WIN else NativeBridge.RESULT_LOSE
+
                     NativeBridge.recordMatchResult(
                         false, pScore, aiScore, 0,
                         matchRockCount, matchPaperCount, matchScissorsCount
@@ -692,21 +704,20 @@ class MainActivity : AppCompatActivity(), OnlineGameListener {
                     Handler(Looper.getMainLooper()).postDelayed({
                         CustomDialogs.showMatchResultDialog(
                             this,
-                            won,
-                            if (won) getString(R.string.match_victory) else getString(R.string.match_defeat),
+                            matchRes,
                             "$pScore - $aiScore",
+                            currentMatchRound,
                             onRematch = { showVsAiMatchScreen() },
                             onExit = { navigateTo(ScreenState.HOME) }
                         )
-                    }, 800)
+                    }, 700)
                 } else {
                     Handler(Looper.getMainLooper()).postDelayed({
                         arenaView.reset()
                         moveCards.resetSelection()
                         moveCards.isEnabledSelection = true
-                        statusText.text = getString(R.string.status_choose_move)
-                        statusText.setTextColor(Color.WHITE)
-                    }, 1400)
+                        scoreBoard.setRoundStatus("PILIH ELEMEN ANDA")
+                    }, 1300)
                 }
             }
         }
@@ -727,35 +738,38 @@ class MainActivity : AppCompatActivity(), OnlineGameListener {
 
         val layout = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            setPadding(36, 40, 36, 40)
+            setPadding(32, 36, 32, 36)
 
-            // Top Bar
             addView(createTopBar("ONLINE MULTIPLAYER") { navigateTo(ScreenState.HOME) })
 
-            // Server Connection Status
-            val serverCard = LinearLayout(context).apply {
+            // Connection Indicator Bar
+            val connBar = LinearLayout(context).apply {
                 orientation = LinearLayout.HORIZONTAL
                 gravity = Gravity.CENTER_VERTICAL
                 setBackgroundResource(R.drawable.bg_card_surface)
-                setPadding(24, 16, 24, 16)
+                setPadding(20, 14, 20, 14)
                 layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT).apply {
-                    topMargin = 24
+                    topMargin = 20
                     bottomMargin = 24
                 }
 
                 val dot = View(context).apply {
-                    layoutParams = LinearLayout.LayoutParams(20, 20).apply { marginEnd = 16 }
-                    val color = if (wsManager.state == ConnectionState.CONNECTED) "#00E676" else "#FF9100"
-                    setBackgroundColor(Color.parseColor(color))
+                    layoutParams = LinearLayout.LayoutParams(16, 16).apply { marginEnd = 12 }
+                    val colorHex = if (wsManager.state == ConnectionState.CONNECTED) "#10B981" else "#F59E0B"
+                    val shape = GradientDrawable().apply {
+                        this.shape = GradientDrawable.OVAL
+                        setColor(Color.parseColor(colorHex))
+                    }
+                    background = shape
                 }
                 addView(dot)
 
                 val status = TextView(context).apply {
                     text = when (wsManager.state) {
-                        ConnectionState.CONNECTED -> "Terhubung: ${RPSApplication.instance.preferences.serverUrl}"
+                        ConnectionState.CONNECTED -> "Online • ${RPSApplication.instance.preferences.serverUrl}"
                         ConnectionState.CONNECTING -> "Menghubungkan ke server..."
                         ConnectionState.RECONNECTING -> "Menyambung ulang..."
-                        else -> "Klik untuk menghubungkan ke server"
+                        else -> "Klik untuk koneksi ke server"
                     }
                     textSize = 12f
                     setTextColor(ContextCompat.getColor(context, R.color.text_secondary))
@@ -767,59 +781,56 @@ class MainActivity : AppCompatActivity(), OnlineGameListener {
                     CustomToast.show(this@MainActivity, "Menghubungkan ke server...")
                 }
             }
-            addView(serverCard)
+            addView(connBar)
 
-            // Connect immediately if disconnected
             if (wsManager.state == ConnectionState.DISCONNECTED) {
                 wsManager.connect(RPSApplication.instance.preferences.serverUrl)
             }
 
-            // Action Cards
-            addView(createBigActionCard(
-                title = getString(R.string.btn_quick_match),
-                desc = getString(R.string.btn_quick_match_desc),
-                badge = "INSTANT",
-                badgeColor = "#00E5FF",
-                accentHex = "#00E5FF"
+            // Quick Match Action
+            addView(createMainPlayButton(
+                title = "QUICK MATCH",
+                subtitle = "Cari lawan langsung secara otomatis",
+                badgeText = "INSTANT",
+                isPrimary = true
             ) {
                 if (wsManager.state != ConnectionState.CONNECTED) {
                     CustomToast.show(this@MainActivity, "Menghubungkan ke server...", true)
                     wsManager.connect(RPSApplication.instance.preferences.serverUrl)
-                    return@createBigActionCard
+                    return@createMainPlayButton
                 }
                 wsManager.sendQuickMatch()
                 navigateTo(ScreenState.ONLINE_WAITING)
             })
 
-            addView(createBigActionCard(
-                title = getString(R.string.btn_create_room),
-                desc = getString(R.string.btn_create_room_desc),
-                badge = "HOST",
-                badgeColor = "#D500F9",
-                accentHex = "#D500F9"
+            // Create Room Action
+            addView(createMainPlayButton(
+                title = "BUAT ROOM",
+                subtitle = "Buat room baru dan bagikan kode ke teman",
+                badgeText = "HOST",
+                isPrimary = false
             ) {
                 if (wsManager.state != ConnectionState.CONNECTED) {
                     CustomToast.show(this@MainActivity, "Menghubungkan ke server...", true)
                     wsManager.connect(RPSApplication.instance.preferences.serverUrl)
-                    return@createBigActionCard
+                    return@createMainPlayButton
                 }
                 wsManager.sendCreateRoom(3)
             })
 
-            addView(createBigActionCard(
-                title = getString(R.string.btn_join_room),
-                desc = getString(R.string.btn_join_room_desc),
-                badge = "CODE",
-                badgeColor = "#FFD600",
-                accentHex = "#FFD600"
-            ) {
+            // Join Room Action
+            addView(createNavTile("Gabung Room dengan Kode", R.drawable.ic_vs) {
                 if (wsManager.state != ConnectionState.CONNECTED) {
                     CustomToast.show(this@MainActivity, "Menghubungkan ke server...", true)
                     wsManager.connect(RPSApplication.instance.preferences.serverUrl)
-                    return@createBigActionCard
+                    return@createNavTile
                 }
                 CustomDialogs.showJoinRoomDialog(this@MainActivity) { code ->
                     wsManager.sendJoinRoom(code)
+                }
+            }.apply {
+                layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT).apply {
+                    topMargin = 4
                 }
             })
         }
@@ -835,7 +846,7 @@ class MainActivity : AppCompatActivity(), OnlineGameListener {
         val layout = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             gravity = Gravity.CENTER_HORIZONTAL
-            setPadding(40, 48, 40, 48)
+            setPadding(32, 36, 32, 36)
             layoutParams = FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT)
 
             addView(createTopBar("WAITING ROOM") {
@@ -849,15 +860,16 @@ class MainActivity : AppCompatActivity(), OnlineGameListener {
             addView(spacer)
 
             val spinner = ProgressBar(context).apply {
-                indeterminateTintList = ContextCompat.getColorStateList(context, R.color.neon_cyan)
-                layoutParams = LinearLayout.LayoutParams(80, 80).apply { bottomMargin = 24 }
+                indeterminateTintList = ContextCompat.getColorStateList(context, R.color.accent_primary)
+                layoutParams = LinearLayout.LayoutParams(64, 64).apply { bottomMargin = 20 }
             }
             addView(spinner)
 
             val waitingMsg = TextView(context).apply {
-                text = getString(R.string.waiting_for_opponent)
-                textSize = 15f
+                text = "Mencari Lawan Tanding..."
+                textSize = 16f
                 setTextColor(Color.WHITE)
+                isFakeBoldText = true
                 gravity = Gravity.CENTER
             }
             addView(waitingMsg)
@@ -869,41 +881,46 @@ class MainActivity : AppCompatActivity(), OnlineGameListener {
                     orientation = LinearLayout.VERTICAL
                     gravity = Gravity.CENTER
                     setBackgroundResource(R.drawable.bg_card_glass)
-                    setPadding(40, 24, 40, 24)
+                    setPadding(32, 24, 32, 24)
                     layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT).apply {
-                        topMargin = 32
-                        bottomMargin = 24
+                        topMargin = 28
+                        bottomMargin = 20
                     }
 
                     val label = TextView(context).apply {
                         text = "KODE ROOM ANDA"
-                        textSize = 12f
-                        setTextColor(ContextCompat.getColor(context, R.color.neon_cyan))
+                        textSize = 11f
+                        setTextColor(ContextCompat.getColor(context, R.color.accent_primary))
+                        isFakeBoldText = true
+                        letterSpacing = 0.1f
                     }
                     addView(label)
 
                     val codeText = TextView(context).apply {
                         text = code
-                        textSize = 36f
+                        textSize = 34f
                         setTextColor(Color.WHITE)
                         isFakeBoldText = true
                         letterSpacing = 0.2f
                         layoutParams = LinearLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT).apply {
-                            topMargin = 8
+                            topMargin = 6
                             bottomMargin = 16
                         }
                     }
                     addView(codeText)
 
                     val btnCopy = Button(context).apply {
-                        text = "SALIN KODE ROOM"
+                        text = "SALIN KODE"
                         setTextColor(Color.BLACK)
                         isFakeBoldText = true
                         setBackgroundResource(R.drawable.bg_button_primary)
+                        layoutParams = LinearLayout.LayoutParams(WRAP_CONTENT, 100).apply {
+                            setPadding(32, 0, 32, 0)
+                        }
                         setOnClickListener {
                             val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                             clipboard.setPrimaryClip(ClipData.newPlainText("RPS Room Code", code))
-                            CustomToast.show(this@MainActivity, getString(R.string.code_copied))
+                            CustomToast.show(this@MainActivity, "Kode room disalin ke clipboard!")
                         }
                     }
                     addView(btnCopy)
@@ -920,7 +937,7 @@ class MainActivity : AppCompatActivity(), OnlineGameListener {
                 text = "BATALKAN"
                 setTextColor(Color.WHITE)
                 setBackgroundResource(R.drawable.bg_button_danger)
-                layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT)
+                layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, 114)
                 setOnClickListener {
                     wsManager.sendLeaveMatch()
                     navigateTo(ScreenState.ONLINE_LOBBY)
@@ -933,26 +950,31 @@ class MainActivity : AppCompatActivity(), OnlineGameListener {
     }
 
     // =========================================================================
-    // 7. ONLINE MATCH SCREEN
+    // 7. GAME SCREEN: ONLINE MATCH
+    // Hierarchy: Opponent -> Score -> Round / Countdown -> Arena -> Player -> Moves
     // =========================================================================
     private var onlineArenaView: ArenaHandsView? = null
     private var onlineScoreBoard: ScoreBoardView? = null
     private var onlineMoveCards: MoveCardsView? = null
-    private var onlineStatusText: TextView? = null
 
     private fun showOnlineMatchScreen() {
+        currentMatchRound = 1
         val layout = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             layoutParams = FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT)
-            setPadding(32, 28, 32, 28)
+            setPadding(24, 20, 24, 20)
         }
 
         // Top Bar
         val topBar = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
             gravity = Gravity.CENTER_VERTICAL
+            layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT).apply {
+                bottomMargin = 10
+            }
 
             val btnExit = ImageView(context).apply {
+                layoutParams = LinearLayout.LayoutParams(32, 32)
                 setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_arrow_back))
                 setOnClickListener {
                     CustomDialogs.showErrorDialog(this@MainActivity, "Keluar", "Keluar dari match online?") {
@@ -963,56 +985,49 @@ class MainActivity : AppCompatActivity(), OnlineGameListener {
             }
             addView(btnExit)
 
+            val spacer = View(context).apply {
+                layoutParams = LinearLayout.LayoutParams(0, 0, 1f)
+            }
+            addView(spacer)
+
             val roomBadge = TextView(context).apply {
                 text = "ROOM: ${wsManager.currentRoomCode ?: "PVP"}"
-                textSize = 12f
-                setTextColor(ContextCompat.getColor(context, R.color.neon_magenta))
+                textSize = 11f
+                setTextColor(ContextCompat.getColor(context, R.color.accent_secondary))
                 setBackgroundResource(R.drawable.bg_pill)
-                setPadding(24, 6, 24, 6)
-                layoutParams = LinearLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT).apply {
-                    marginStart = 20
-                }
+                setPadding(18, 5, 18, 5)
             }
             addView(roomBadge)
         }
         layout.addView(topBar)
 
+        // 1 & 2 & 3. Opponent -> Big Score -> Round Status
         onlineScoreBoard = ScoreBoardView(this).apply {
-            layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT).apply {
-                topMargin = 16
-                bottomMargin = 16
-            }
             setNames("PLAYER", "LAWAN")
             setupTargetDots(2)
             updateScore(0, 0, 1)
         }
         layout.addView(onlineScoreBoard)
 
+        // 4. Game Arena
         onlineArenaView = ArenaHandsView(this).apply {
             layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, 0, 1f)
         }
         layout.addView(onlineArenaView)
 
-        onlineStatusText = TextView(this).apply {
-            text = getString(R.string.status_choose_move)
-            textSize = 15f
-            setTextColor(Color.WHITE)
-            isFakeBoldText = true
-            gravity = Gravity.CENTER
-            layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT).apply {
-                bottomMargin = 16
-            }
-        }
-        layout.addView(onlineStatusText)
+        // 5. Player Info (Avatar, Name, Dots)
+        val playerStatusView = onlineScoreBoard!!.createPlayerStatusView()
+        layout.addView(playerStatusView)
 
+        // 6. Rock Paper Scissors Moves
         onlineMoveCards = MoveCardsView(this).apply {
             layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT).apply {
-                bottomMargin = 16
+                bottomMargin = 8
             }
             onMoveSelectedListener = { move ->
                 selectedMoveThisRound = move
                 isEnabledSelection = false
-                onlineStatusText?.text = "Move terkirim! Menunggu lawan..."
+                onlineScoreBoard?.setRoundStatus("MOVE TERKIRIM • MENUNGGU LAWAN...")
                 wsManager.sendSubmitMove(move)
             }
         }
@@ -1022,7 +1037,7 @@ class MainActivity : AppCompatActivity(), OnlineGameListener {
     }
 
     // =========================================================================
-    // 8. STATS SCREEN
+    // 8. STATS SCREEN (Main Statistic -> Match Record -> Streak -> Move Usage)
     // =========================================================================
     private fun showStatsScreen() {
         val scroll = ScrollView(this).apply {
@@ -1032,18 +1047,19 @@ class MainActivity : AppCompatActivity(), OnlineGameListener {
 
         val layout = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            setPadding(36, 40, 36, 40)
+            setPadding(32, 36, 32, 36)
 
-            addView(createTopBar(getString(R.string.title_stats)) { navigateTo(ScreenState.HOME) })
+            addView(createTopBar("STATISTIK GAME") { navigateTo(ScreenState.HOME) })
 
-            // Tab Selector
+            // Tab Selector Pill
             var isOnlineTab = false
             val tabContainer = LinearLayout(context).apply {
                 orientation = LinearLayout.HORIZONTAL
-                setBackgroundResource(R.drawable.bg_card_surface)
+                setBackgroundResource(R.drawable.bg_pill)
+                setPadding(4, 4, 4, 4)
                 layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT).apply {
-                    topMargin = 24
-                    bottomMargin = 24
+                    topMargin = 18
+                    bottomMargin = 20
                 }
             }
 
@@ -1052,14 +1068,14 @@ class MainActivity : AppCompatActivity(), OnlineGameListener {
                 setTextColor(Color.BLACK)
                 isFakeBoldText = true
                 setBackgroundResource(R.drawable.bg_button_primary)
-                layoutParams = LinearLayout.LayoutParams(0, WRAP_CONTENT, 1f)
+                layoutParams = LinearLayout.LayoutParams(0, 100, 1f)
             }
 
             val tabOnline = Button(context).apply {
                 text = "ONLINE"
                 setTextColor(Color.parseColor("#94A3B8"))
                 setBackgroundColor(Color.TRANSPARENT)
-                layoutParams = LinearLayout.LayoutParams(0, WRAP_CONTENT, 1f)
+                layoutParams = LinearLayout.LayoutParams(0, 100, 1f)
             }
 
             tabContainer.addView(tabAi)
@@ -1074,83 +1090,95 @@ class MainActivity : AppCompatActivity(), OnlineGameListener {
             fun renderStats(stats: ModeStatsData) {
                 contentContainer.removeAllViews()
 
-                // Circular Win Rate Gauge
+                // 1. Main Statistic: Win Rate Gauge
                 val gauge = WinRateGaugeView(context).apply {
-                    layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, 260).apply {
-                        bottomMargin = 20
+                    layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, 240).apply {
+                        bottomMargin = 10
                     }
                     setWinRate(stats.winRate)
                 }
                 contentContainer.addView(gauge)
 
-                // Match Breakdown Row
+                val totalMatchesPill = TextView(context).apply {
+                    text = "TOTAL PERTANDINGAN: ${stats.totalMatches}"
+                    textSize = 12f
+                    setTextColor(Color.parseColor("#94A3B8"))
+                    isFakeBoldText = true
+                    gravity = Gravity.CENTER
+                    layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT).apply {
+                        bottomMargin = 20
+                    }
+                }
+                contentContainer.addView(totalMatchesPill)
+
+                // 2. Match Record: Menang, Kalah, Seri
                 val statsRow = LinearLayout(context).apply {
                     orientation = LinearLayout.HORIZONTAL
                     weightSum = 3f
                     layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT).apply {
                         bottomMargin = 16
                     }
-                    addView(createStatMetricCard("MENANG", "${stats.wins}", "#00E676"))
-                    addView(createStatMetricCard("KALAH", "${stats.losses}", "#FF1744"))
-                    addView(createStatMetricCard("SERI", "${stats.draws}", "#FF9100"))
+                    addView(createStatMetricCard("MENANG", "${stats.wins}", "#10B981"))
+                    addView(createStatMetricCard("KALAH", "${stats.losses}", "#EF4444"))
+                    addView(createStatMetricCard("SERI", "${stats.draws}", "#F59E0B"))
                 }
                 contentContainer.addView(statsRow)
 
-                // Streak Row
+                // 3. Streak Record: Current Streak & Best Streak
                 val streakRow = LinearLayout(context).apply {
                     orientation = LinearLayout.HORIZONTAL
                     weightSum = 2f
                     layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT).apply {
                         bottomMargin = 24
                     }
-                    addView(createStatMetricCard("CURRENT STREAK", "${stats.currentStreak}", "#FFD600"))
+                    addView(createStatMetricCard("CURRENT STREAK", "${stats.currentStreak}", "#F59E0B"))
                     addView(createStatMetricCard("BEST STREAK", "${stats.bestStreak}", "#00E5FF"))
                 }
                 contentContainer.addView(streakRow)
 
-                // Move Distribution Section
+                // 4. Move Usage Section
                 val distTitle = TextView(context).apply {
-                    text = getString(R.string.title_move_distribution)
-                    textSize = 13f
-                    setTextColor(ContextCompat.getColor(context, R.color.neon_cyan))
+                    text = "MOVE USAGE DISTRIBUTION"
+                    textSize = 12f
+                    setTextColor(ContextCompat.getColor(context, R.color.accent_primary))
                     isFakeBoldText = true
+                    letterSpacing = 0.08f
                     layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT).apply {
-                        bottomMargin = 12
+                        bottomMargin = 10
                     }
                 }
                 contentContainer.addView(distTitle)
 
                 val distBar = MoveDistributionBarView(context).apply {
-                    layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, 32).apply {
+                    layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, 26).apply {
                         bottomMargin = 12
                     }
                     setStats(stats)
                 }
                 contentContainer.addView(distBar)
 
-                // Move Labels
                 val moveLabels = LinearLayout(context).apply {
                     orientation = LinearLayout.HORIZONTAL
                     weightSum = 3f
                     layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT).apply {
-                        bottomMargin = 32
+                        bottomMargin = 28
                     }
 
-                    addView(createMoveStatLabel("Batu", stats.rockUsage, stats.rockPercent, "#FF5252"))
-                    addView(createMoveStatLabel("Kertas", stats.paperUsage, stats.paperPercent, "#448AFF"))
-                    addView(createMoveStatLabel("Gunting", stats.scissorsUsage, stats.scissorsPercent, "#69F0AE"))
+                    addView(createMoveStatLabel("Batu", stats.rockUsage, stats.rockPercent, "#F43F5E"))
+                    addView(createMoveStatLabel("Kertas", stats.paperUsage, stats.paperPercent, "#38BDF8"))
+                    addView(createMoveStatLabel("Gunting", stats.scissorsUsage, stats.scissorsPercent, "#34D399"))
                 }
                 contentContainer.addView(moveLabels)
 
                 // Reset Button
                 val btnReset = Button(context).apply {
-                    text = getString(R.string.btn_reset_stats)
-                    setTextColor(ContextCompat.getColor(context, R.color.ruby_lose))
+                    text = "RESET STATISTIK"
+                    setTextColor(ContextCompat.getColor(context, R.color.state_lose))
                     setBackgroundResource(R.drawable.bg_button_danger)
-                    layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT)
+                    layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, 114)
                     setOnClickListener {
                         NativeBridge.resetStats(isOnlineTab)
-                        CustomToast.show(this@MainActivity, getString(R.string.msg_stats_reset))
+                        CustomToast.show(this@MainActivity, "Statistik telah di-reset!")
                         showStatsScreen()
                     }
                 }
@@ -1194,9 +1222,9 @@ class MainActivity : AppCompatActivity(), OnlineGameListener {
             orientation = LinearLayout.VERTICAL
             gravity = Gravity.CENTER
             setBackgroundResource(R.drawable.bg_card_surface)
-            setPadding(16, 20, 16, 20)
+            setPadding(16, 18, 16, 18)
             layoutParams = LinearLayout.LayoutParams(0, WRAP_CONTENT, 1f).apply {
-                setMargins(6, 0, 6, 0)
+                setMargins(5, 0, 5, 0)
             }
 
             val valText = TextView(context).apply {
@@ -1209,8 +1237,9 @@ class MainActivity : AppCompatActivity(), OnlineGameListener {
 
             val labelText = TextView(context).apply {
                 text = label
-                textSize = 11f
+                textSize = 10f
                 setTextColor(ContextCompat.getColor(context, R.color.text_secondary))
+                letterSpacing = 0.05f
                 layoutParams = LinearLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT).apply {
                     topMargin = 4
                 }
@@ -1243,7 +1272,7 @@ class MainActivity : AppCompatActivity(), OnlineGameListener {
     }
 
     // =========================================================================
-    // 9. HOW TO PLAY SCREEN
+    // 9. HOW TO PLAY SCREEN (Visual Relationship Cycle & Minimal Rules)
     // =========================================================================
     private fun showHowToPlayScreen() {
         val scroll = ScrollView(this).apply {
@@ -1253,59 +1282,120 @@ class MainActivity : AppCompatActivity(), OnlineGameListener {
 
         val layout = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            setPadding(36, 40, 36, 40)
+            setPadding(32, 36, 32, 36)
 
-            addView(createTopBar(getString(R.string.title_how_to_play)) { navigateTo(ScreenState.HOME) })
+            addView(createTopBar("CARA BERMAIN") { navigateTo(ScreenState.HOME) })
 
-            // Rules Graphic Cards
-            addView(createRuleCard("BATU MENGALAHKAN GUNTING", "Batu menghancurkan bilah gunting.", R.drawable.ic_rock, "#FF5252"))
-            addView(createRuleCard("GUNTING MENGALAHKAN KERTAS", "Gunting membelah lembaran kertas.", R.drawable.ic_scissors, "#69F0AE"))
-            addView(createRuleCard("KERTAS MENGALAHKAN BATU", "Kertas membungkus permukaan batu.", R.drawable.ic_paper, "#448AFF"))
-
-            // AI Explanation
-            val aiTitle = TextView(context).apply {
-                text = "TENTANG MODE VS AI"
-                textSize = 14f
-                setTextColor(ContextCompat.getColor(context, R.color.neon_cyan))
+            // Visual Cycle Header
+            val cycleTitle = TextView(context).apply {
+                text = "SIKLUS HUBUNGAN ELEMEN"
+                textSize = 12f
+                setTextColor(ContextCompat.getColor(context, R.color.accent_primary))
                 isFakeBoldText = true
+                letterSpacing = 0.08f
                 layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT).apply {
-                    topMargin = 24
-                    bottomMargin = 8
+                    topMargin = 20
+                    bottomMargin = 14
                 }
             }
-            addView(aiTitle)
+            addView(cycleTitle)
 
-            val aiText = TextView(context).apply {
-                text = getString(R.string.guide_ai_text)
-                textSize = 13f
-                setTextColor(ContextCompat.getColor(context, R.color.text_secondary))
-                setLineSpacing(0f, 1.3f)
+            // Cycle Visual Flow
+            val cycleCard = LinearLayout(context).apply {
+                orientation = LinearLayout.HORIZONTAL
+                gravity = Gravity.CENTER
+                setBackgroundResource(R.drawable.bg_card_glass)
+                setPadding(20, 20, 20, 20)
+                layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT).apply {
+                    bottomMargin = 16
+                }
+
+                fun createCycleIcon(iconRes: Int, label: String, colorHex: String): View {
+                    return LinearLayout(context).apply {
+                        orientation = LinearLayout.VERTICAL
+                        gravity = Gravity.CENTER
+                        val iv = ImageView(context).apply {
+                            layoutParams = LinearLayout.LayoutParams(42, 42)
+                            setImageDrawable(ContextCompat.getDrawable(context, iconRes))
+                        }
+                        addView(iv)
+                        val tv = TextView(context).apply {
+                            text = label
+                            textSize = 11f
+                            setTextColor(Color.parseColor(colorHex))
+                            isFakeBoldText = true
+                            layoutParams = LinearLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT).apply { topMargin = 4 }
+                        }
+                        addView(tv)
+                    }
+                }
+
+                fun createArrow(): View {
+                    return TextView(context).apply {
+                        text = "→"
+                        textSize = 20f
+                        setTextColor(Color.parseColor("#64748B"))
+                        layoutParams = LinearLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT).apply {
+                            setMargins(14, 0, 14, 0)
+                        }
+                    }
+                }
+
+                addView(createCycleIcon(R.drawable.ic_rock, "Batu", "#F43F5E"))
+                addView(createArrow())
+                addView(createCycleIcon(R.drawable.ic_scissors, "Gunting", "#34D399"))
+                addView(createArrow())
+                addView(createCycleIcon(R.drawable.ic_paper, "Kertas", "#38BDF8"))
             }
-            addView(aiText)
+            addView(cycleCard)
 
-            // Online Explanation
-            val onlineTitle = TextView(context).apply {
-                text = "TENTANG MODE ONLINE"
-                textSize = 14f
-                setTextColor(ContextCompat.getColor(context, R.color.neon_magenta))
+            // Short Rules
+            addView(createRuleCard("BATU > GUNTING", "Batu menghancurkan bilah gunting.", R.drawable.ic_rock, "#F43F5E"))
+            addView(createRuleCard("GUNTING > KERTAS", "Gunting membelah lembaran kertas.", R.drawable.ic_scissors, "#34D399"))
+            addView(createRuleCard("KERTAS > BATU", "Kertas membungkus permukaan batu.", R.drawable.ic_paper, "#38BDF8"))
+
+            // Match Scoring Rules
+            val formatTitle = TextView(context).apply {
+                text = "SISTEM KEMENANGAN"
+                textSize = 12f
+                setTextColor(ContextCompat.getColor(context, R.color.accent_primary))
                 isFakeBoldText = true
+                letterSpacing = 0.08f
                 layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT).apply {
-                    topMargin = 24
-                    bottomMargin = 8
+                    topMargin = 20
+                    bottomMargin = 10
                 }
             }
-            addView(onlineTitle)
+            addView(formatTitle)
 
-            val onlineText = TextView(context).apply {
-                text = getString(R.string.guide_online_text)
-                textSize = 13f
-                setTextColor(ContextCompat.getColor(context, R.color.text_secondary))
-                setLineSpacing(0f, 1.3f)
+            val formatCard = LinearLayout(context).apply {
+                orientation = LinearLayout.VERTICAL
+                setBackgroundResource(R.drawable.bg_card_surface)
+                setPadding(20, 16, 20, 16)
                 layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT).apply {
-                    bottomMargin = 32
+                    bottomMargin = 24
                 }
+
+                val b1 = TextView(context).apply {
+                    text = "• Best of 3: Pemenang pertama yang meraih 2 poin menang match."
+                    textSize = 12f
+                    setTextColor(ContextCompat.getColor(context, R.color.text_secondary))
+                    setLineSpacing(0f, 1.2f)
+                }
+                addView(b1)
+
+                val b2 = TextView(context).apply {
+                    text = "• Best of 5: Pemenang pertama yang meraih 3 poin menang match."
+                    textSize = 12f
+                    setTextColor(ContextCompat.getColor(context, R.color.text_secondary))
+                    setLineSpacing(0f, 1.2f)
+                    layoutParams = LinearLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT).apply {
+                        topMargin = 6
+                    }
+                }
+                addView(b2)
             }
-            addView(onlineText)
+            addView(formatCard)
         }
 
         scroll.addView(layout)
@@ -1316,14 +1406,14 @@ class MainActivity : AppCompatActivity(), OnlineGameListener {
         return LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
             gravity = Gravity.CENTER_VERTICAL
-            setBackgroundResource(R.drawable.bg_card_glass)
-            setPadding(24, 20, 24, 20)
+            setBackgroundResource(R.drawable.bg_card_surface)
+            setPadding(20, 16, 20, 16)
             layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT).apply {
-                topMargin = 14
+                bottomMargin = 10
             }
 
             val icon = ImageView(context).apply {
-                layoutParams = LinearLayout.LayoutParams(48, 48).apply { marginEnd = 20 }
+                layoutParams = LinearLayout.LayoutParams(38, 38).apply { marginEnd = 16 }
                 setImageDrawable(ContextCompat.getDrawable(context, iconRes))
             }
             addView(icon)
@@ -1333,7 +1423,7 @@ class MainActivity : AppCompatActivity(), OnlineGameListener {
 
                 val t = TextView(context).apply {
                     text = title
-                    textSize = 14f
+                    textSize = 13f
                     setTextColor(Color.parseColor(accentHex))
                     isFakeBoldText = true
                 }
@@ -1344,7 +1434,7 @@ class MainActivity : AppCompatActivity(), OnlineGameListener {
                     textSize = 12f
                     setTextColor(ContextCompat.getColor(context, R.color.text_secondary))
                     layoutParams = LinearLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT).apply {
-                        topMargin = 4
+                        topMargin = 2
                     }
                 }
                 addView(d)
@@ -1354,7 +1444,7 @@ class MainActivity : AppCompatActivity(), OnlineGameListener {
     }
 
     // =========================================================================
-    // 10. FAQ SCREEN (Accordion)
+    // 10. FAQ SCREEN (Smooth Native Accordion)
     // =========================================================================
     private fun showFaqScreen() {
         val scroll = ScrollView(this).apply {
@@ -1364,18 +1454,18 @@ class MainActivity : AppCompatActivity(), OnlineGameListener {
 
         val layout = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            setPadding(36, 40, 36, 40)
+            setPadding(32, 36, 32, 36)
 
-            addView(createTopBar(getString(R.string.title_faq)) { navigateTo(ScreenState.HOME) })
+            addView(createTopBar("FAQ") { navigateTo(ScreenState.HOME) })
 
             val faqs = listOf(
-                Pair(getString(R.string.faq_q1), getString(R.string.faq_a1)),
-                Pair(getString(R.string.faq_q2), getString(R.string.faq_a2)),
-                Pair(getString(R.string.faq_q3), getString(R.string.faq_a3)),
-                Pair(getString(R.string.faq_q4), getString(R.string.faq_a4)),
-                Pair(getString(R.string.faq_q5), getString(R.string.faq_a5)),
-                Pair(getString(R.string.faq_q6), getString(R.string.faq_a6)),
-                Pair(getString(R.string.faq_q7), getString(R.string.faq_a7))
+                Pair("Bagaimana cara AI bekerja?", "AI menggunakan kombinasi heuristik Win-Stay Lose-Shift pada tingkat Normal, dan N-Gram Markov Chain pada tingkat Hard untuk memprediksi pola langkah Anda secara real-time."),
+                Pair("Apakah mode VS AI membutuhkan internet?", "Tidak. Seluruh engine game dan algoritma AI dikompilasi secara native dalam C++20 dan berjalan 100% offline tanpa koneksi data."),
+                Pair("Bagaimana cara bermain online dengan teman?", "Pilih Online Multiplayer → Buat Room. Bagikan 6 karakter kode room kepada teman Anda. Teman Anda cukup memilih Gabung Room dan memasukkan kode tersebut."),
+                Pair("Apa yang terjadi jika koneksi terputus saat PvP?", "Sistem menyediakan grace period selama 10 detik untuk melakukan auto-reconnect secara otomatis sebelum ronde dianggap walkover."),
+                Pair("Apakah game ini mendukung semua ponsel Android?", "Ya! Aplikasi dikompilasi untuk 4 ABI (arm64-v8a, armeabi-v7a, x86, x86_64) dan mendukung Android 5.0 Lollipop hingga Android 15+."),
+                Pair("Bagaimana data statistik disimpan?", "Statistik kemenangan, kekalahan, streak, dan distribusi elemen disimpan secara persisten di penyimpanan lokal perangkat."),
+                Pair("Apakah saya bisa mengganti URL server multiplayer?", "Bisa. Buka menu Pengaturan, ubah URL WebSocket pada kolom Server URL, lalu tekan Simpan.")
             )
 
             faqs.forEach { (q, a) ->
@@ -1391,15 +1481,15 @@ class MainActivity : AppCompatActivity(), OnlineGameListener {
         return LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             setBackgroundResource(R.drawable.bg_card_surface)
-            setPadding(24, 20, 24, 20)
+            setPadding(20, 16, 20, 16)
             layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT).apply {
-                topMargin = 14
+                bottomMargin = 10
             }
 
             var isExpanded = false
 
             val arrow = ImageView(context).apply {
-                layoutParams = LinearLayout.LayoutParams(28, 28)
+                layoutParams = LinearLayout.LayoutParams(22, 22)
                 setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_chevron_down))
             }
 
@@ -1409,10 +1499,10 @@ class MainActivity : AppCompatActivity(), OnlineGameListener {
 
                 val qText = TextView(context).apply {
                     text = question
-                    textSize = 14f
+                    textSize = 13f
                     setTextColor(Color.WHITE)
                     isFakeBoldText = true
-                    layoutParams = LinearLayout.LayoutParams(0, WRAP_CONTENT, 1f)
+                    layoutParams = LinearLayout.LayoutParams(0, WRAP_CONTENT, 1f).apply { marginEnd = 12 }
                 }
                 addView(qText)
                 addView(arrow)
@@ -1421,12 +1511,12 @@ class MainActivity : AppCompatActivity(), OnlineGameListener {
 
             val aText = TextView(context).apply {
                 text = answer
-                textSize = 13f
+                textSize = 12f
                 setTextColor(ContextCompat.getColor(context, R.color.text_secondary))
-                setLineSpacing(0f, 1.3f)
+                setLineSpacing(0f, 1.25f)
                 visibility = View.GONE
                 layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT).apply {
-                    topMargin = 16
+                    topMargin = 12
                 }
             }
             addView(aText)
@@ -1434,15 +1524,19 @@ class MainActivity : AppCompatActivity(), OnlineGameListener {
             setOnClickListener {
                 isExpanded = !isExpanded
                 RPSApplication.instance.soundManager.playSfx(NativeBridge.SFX_TAP)
+
+                // Smooth rotation of chevron
+                val targetRot = if (isExpanded) 180f else 0f
+                ObjectAnimator.ofFloat(arrow, View.ROTATION, targetRot).setDuration(200).start()
+
+                // Smooth expand / collapse
                 aText.visibility = if (isExpanded) View.VISIBLE else View.GONE
-                val iconRes = if (isExpanded) R.drawable.ic_chevron_up else R.drawable.ic_chevron_down
-                arrow.setImageDrawable(ContextCompat.getDrawable(context, iconRes))
             }
         }
     }
 
     // =========================================================================
-    // 11. ABOUT DEVELOPER SCREEN
+    // 11. ABOUT DEVELOPER SCREEN (Minimal & Exact Links)
     // =========================================================================
     private fun showAboutScreen() {
         val scroll = ScrollView(this).apply {
@@ -1452,48 +1546,48 @@ class MainActivity : AppCompatActivity(), OnlineGameListener {
 
         val layout = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            setPadding(36, 40, 36, 40)
+            setPadding(32, 36, 32, 36)
 
-            addView(createTopBar(getString(R.string.title_about)) { navigateTo(ScreenState.HOME) })
+            addView(createTopBar("ABOUT") { navigateTo(ScreenState.HOME) })
 
-            // Dev Info Card
+            // Dev Profile Card
             val devCard = LinearLayout(context).apply {
                 orientation = LinearLayout.VERTICAL
                 gravity = Gravity.CENTER_HORIZONTAL
                 setBackgroundResource(R.drawable.bg_card_glass)
-                setPadding(36, 36, 36, 36)
+                setPadding(28, 28, 28, 28)
                 layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT).apply {
-                    topMargin = 28
+                    topMargin = 20
                     bottomMargin = 24
                 }
 
                 val avatar = ImageView(context).apply {
-                    layoutParams = LinearLayout.LayoutParams(88, 88).apply { bottomMargin = 16 }
+                    layoutParams = LinearLayout.LayoutParams(72, 72).apply { bottomMargin = 14 }
                     setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_logo))
                 }
                 addView(avatar)
 
                 val name = TextView(context).apply {
-                    text = getString(R.string.dev_name)
-                    textSize = 24f
-                    setTextColor(ContextCompat.getColor(context, R.color.neon_cyan))
+                    text = "Kyuu"
+                    textSize = 22f
+                    setTextColor(ContextCompat.getColor(context, R.color.accent_primary))
                     isFakeBoldText = true
                 }
                 addView(name)
 
                 val role = TextView(context).apply {
-                    text = getString(R.string.dev_role)
-                    textSize = 13f
-                    setTextColor(ContextCompat.getColor(context, R.color.neon_magenta))
+                    text = "Developer & System Architect"
+                    textSize = 12f
+                    setTextColor(ContextCompat.getColor(context, R.color.accent_secondary))
                     layoutParams = LinearLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT).apply {
                         topMargin = 4
-                        bottomMargin = 16
+                        bottomMargin = 12
                     }
                 }
                 addView(role)
 
                 val quote = TextView(context).apply {
-                    text = getString(R.string.dev_quote)
+                    text = "\"Crafting native performance with modern C++ and minimal design.\""
                     textSize = 12f
                     setTextColor(ContextCompat.getColor(context, R.color.text_secondary))
                     gravity = Gravity.CENTER
@@ -1503,14 +1597,15 @@ class MainActivity : AppCompatActivity(), OnlineGameListener {
             }
             addView(devCard)
 
-            // Social Clickable Links
+            // Social Section
             val linksTitle = TextView(context).apply {
                 text = "JARINGAN & SOSIAL"
-                textSize = 13f
-                setTextColor(ContextCompat.getColor(context, R.color.neon_cyan))
+                textSize = 12f
+                setTextColor(ContextCompat.getColor(context, R.color.accent_primary))
                 isFakeBoldText = true
+                letterSpacing = 0.08f
                 layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT).apply {
-                    bottomMargin = 12
+                    bottomMargin = 10
                 }
             }
             addView(linksTitle)
@@ -1529,13 +1624,13 @@ class MainActivity : AppCompatActivity(), OnlineGameListener {
             orientation = LinearLayout.HORIZONTAL
             gravity = Gravity.CENTER_VERTICAL
             setBackgroundResource(R.drawable.bg_card_surface)
-            setPadding(24, 20, 24, 20)
+            setPadding(20, 16, 20, 16)
             layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT).apply {
-                bottomMargin = 12
+                bottomMargin = 10
             }
 
             val icon = ImageView(context).apply {
-                layoutParams = LinearLayout.LayoutParams(36, 36).apply { marginEnd = 20 }
+                layoutParams = LinearLayout.LayoutParams(32, 32).apply { marginEnd = 16 }
                 setImageDrawable(ContextCompat.getDrawable(context, iconRes))
             }
             addView(icon)
@@ -1562,7 +1657,7 @@ class MainActivity : AppCompatActivity(), OnlineGameListener {
             addView(col)
 
             val arrow = ImageView(context).apply {
-                layoutParams = LinearLayout.LayoutParams(24, 24)
+                layoutParams = LinearLayout.LayoutParams(20, 20)
                 setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_copy))
             }
             addView(arrow)
@@ -1580,7 +1675,7 @@ class MainActivity : AppCompatActivity(), OnlineGameListener {
     }
 
     // =========================================================================
-    // 12. SETTINGS SCREEN
+    // 12. SETTINGS SCREEN (Grouped: Audio, Haptic, Gameplay, Other)
     // =========================================================================
     private fun showSettingsScreen() {
         val scroll = ScrollView(this).apply {
@@ -1592,72 +1687,59 @@ class MainActivity : AppCompatActivity(), OnlineGameListener {
 
         val layout = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            setPadding(36, 40, 36, 40)
+            setPadding(32, 36, 32, 36)
 
-            addView(createTopBar(getString(R.string.title_settings)) { navigateTo(ScreenState.HOME) })
+            addView(createTopBar("PENGATURAN") { navigateTo(ScreenState.HOME) })
 
-            // Music Toggle & Slider
-            val musicRow = createSwitchRow(getString(R.string.setting_music), prefs.isMusicEnabled) { enabled ->
+            // Group 1: Audio
+            addView(createSettingsCategoryTitle("AUDIO"))
+
+            addView(createSwitchRow("Musik Latar (BGM)", prefs.isMusicEnabled) { enabled ->
                 prefs.isMusicEnabled = enabled
                 NativeBridge.setAudioSettings(enabled, prefs.isSfxEnabled, prefs.musicVolume, prefs.sfxVolume)
                 if (enabled) RPSApplication.instance.soundManager.startBgm()
                 else RPSApplication.instance.soundManager.stopBgm()
-            }
-            addView(musicRow)
+            })
 
-            val musicSlider = createSlider(prefs.musicVolume) { vol ->
+            addView(createSlider(prefs.musicVolume) { vol ->
                 prefs.musicVolume = vol
                 NativeBridge.setAudioSettings(prefs.isMusicEnabled, prefs.isSfxEnabled, vol, prefs.sfxVolume)
-            }
-            addView(musicSlider)
+            })
 
-            // SFX Toggle & Slider
-            val sfxRow = createSwitchRow(getString(R.string.setting_sfx), prefs.isSfxEnabled) { enabled ->
+            addView(createSwitchRow("Efek Suara (SFX)", prefs.isSfxEnabled) { enabled ->
                 prefs.isSfxEnabled = enabled
                 NativeBridge.setAudioSettings(prefs.isMusicEnabled, enabled, prefs.musicVolume, prefs.sfxVolume)
-            }
-            addView(sfxRow)
+            })
 
-            val sfxSlider = createSlider(prefs.sfxVolume) { vol ->
+            addView(createSlider(prefs.sfxVolume) { vol ->
                 prefs.sfxVolume = vol
                 NativeBridge.setAudioSettings(prefs.isMusicEnabled, prefs.isSfxEnabled, prefs.musicVolume, vol)
-            }
-            addView(sfxSlider)
+            })
 
-            // Haptic Toggle & Slider
-            val hapticRow = createSwitchRow(getString(R.string.setting_haptic), prefs.isHapticEnabled) { enabled ->
+            // Group 2: Haptic
+            addView(createSettingsCategoryTitle("HAPTIC FEEDBACK"))
+
+            addView(createSwitchRow("Getaran Haptic", prefs.isHapticEnabled) { enabled ->
                 prefs.isHapticEnabled = enabled
                 NativeBridge.setHapticSettings(enabled, prefs.hapticIntensity)
-            }
-            addView(hapticRow)
+            })
 
-            val hapticSlider = createSlider(prefs.hapticIntensity) { intensity ->
+            addView(createSlider(prefs.hapticIntensity) { intensity ->
                 prefs.hapticIntensity = intensity
                 NativeBridge.setHapticSettings(prefs.isHapticEnabled, intensity)
-            }
-            addView(hapticSlider)
+            })
 
-            // Server URL configuration
-            val serverTitle = TextView(context).apply {
-                text = "WEBSOCKET SERVER URL"
-                textSize = 13f
-                setTextColor(ContextCompat.getColor(context, R.color.neon_cyan))
-                isFakeBoldText = true
-                layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT).apply {
-                    topMargin = 28
-                    bottomMargin = 8
-                }
-            }
-            addView(serverTitle)
+            // Group 3: Gameplay & Server
+            addView(createSettingsCategoryTitle("WEBSOCKET SERVER"))
 
             val serverInput = EditText(context).apply {
                 setText(prefs.serverUrl)
                 setTextColor(Color.WHITE)
-                textSize = 14f
+                textSize = 13f
                 setBackgroundResource(R.drawable.bg_card_surface)
-                setPadding(24, 20, 24, 20)
+                setPadding(20, 16, 20, 16)
                 layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT).apply {
-                    bottomMargin = 12
+                    bottomMargin = 10
                 }
             }
             addView(serverInput)
@@ -1667,8 +1749,8 @@ class MainActivity : AppCompatActivity(), OnlineGameListener {
                 setTextColor(Color.BLACK)
                 isFakeBoldText = true
                 setBackgroundResource(R.drawable.bg_button_primary)
-                layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT).apply {
-                    bottomMargin = 24
+                layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, 110).apply {
+                    bottomMargin = 16
                 }
                 setOnClickListener {
                     val newUrl = serverInput.text.toString().trim()
@@ -1676,7 +1758,7 @@ class MainActivity : AppCompatActivity(), OnlineGameListener {
                         prefs.serverUrl = newUrl
                         wsManager.disconnect()
                         wsManager.connect(newUrl)
-                        CustomToast.show(this@MainActivity, "Server URL diperbarui!")
+                        CustomToast.show(this@MainActivity, "Server URL berhasil diperbarui!")
                     } else {
                         CustomToast.show(this@MainActivity, "URL harus diawali ws:// atau wss://", true)
                     }
@@ -1684,36 +1766,63 @@ class MainActivity : AppCompatActivity(), OnlineGameListener {
             }
             addView(btnSaveServer)
 
-            // Reset Settings
+            // Group 4: Other
+            addView(createSettingsCategoryTitle("LAINNYA"))
+
             val btnReset = Button(context).apply {
-                text = getString(R.string.btn_reset_settings)
-                setTextColor(ContextCompat.getColor(context, R.color.ruby_lose))
+                text = "RESET PENGATURAN"
+                setTextColor(ContextCompat.getColor(context, R.color.state_lose))
                 setBackgroundResource(R.drawable.bg_button_danger)
-                layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT).apply {
-                    topMargin = 12
+                layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, 110).apply {
+                    bottomMargin = 10
                 }
                 setOnClickListener {
                     prefs.resetToDefaults()
-                    CustomToast.show(this@MainActivity, "Pengaturan di-reset ke awal!")
+                    CustomToast.show(this@MainActivity, "Pengaturan di-reset ke default!")
                     showSettingsScreen()
                 }
             }
             addView(btnReset)
+
+            val btnAbout = Button(context).apply {
+                text = "TENTANG PENGEMBANG"
+                setTextColor(Color.WHITE)
+                setBackgroundResource(R.drawable.bg_card_surface)
+                layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, 110)
+                setOnClickListener {
+                    navigateTo(ScreenState.ABOUT)
+                }
+            }
+            addView(btnAbout)
         }
 
         scroll.addView(layout)
         rootContainer.addView(scroll)
     }
 
+    private fun createSettingsCategoryTitle(title: String): View {
+        return TextView(this).apply {
+            text = title
+            textSize = 12f
+            setTextColor(ContextCompat.getColor(context, R.color.accent_primary))
+            isFakeBoldText = true
+            letterSpacing = 0.08f
+            layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT).apply {
+                topMargin = 20
+                bottomMargin = 10
+            }
+        }
+    }
+
     private fun createSwitchRow(label: String, initialChecked: Boolean, onCheckedChange: (Boolean) -> Unit): View {
         return LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
             gravity = Gravity.CENTER_VERTICAL
-            setPadding(0, 16, 0, 8)
+            setPadding(0, 8, 0, 4)
 
             val text = TextView(context).apply {
                 this.text = label
-                textSize = 14f
+                textSize = 13f
                 setTextColor(Color.WHITE)
                 layoutParams = LinearLayout.LayoutParams(0, WRAP_CONTENT, 1f)
             }
@@ -1735,7 +1844,7 @@ class MainActivity : AppCompatActivity(), OnlineGameListener {
             max = 100
             progress = (initialValue * 100).toInt()
             layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT).apply {
-                bottomMargin = 16
+                bottomMargin = 12
             }
             setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
                 override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
@@ -1752,11 +1861,11 @@ class MainActivity : AppCompatActivity(), OnlineGameListener {
             orientation = LinearLayout.HORIZONTAL
             gravity = Gravity.CENTER_VERTICAL
             layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT).apply {
-                bottomMargin = 16
+                bottomMargin = 12
             }
 
             val backBtn = ImageView(context).apply {
-                layoutParams = LinearLayout.LayoutParams(36, 36).apply { marginEnd = 20 }
+                layoutParams = LinearLayout.LayoutParams(32, 32).apply { marginEnd = 16 }
                 setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_arrow_back))
                 setOnClickListener {
                     RPSApplication.instance.soundManager.playSfx(NativeBridge.SFX_TAP)
@@ -1767,9 +1876,10 @@ class MainActivity : AppCompatActivity(), OnlineGameListener {
 
             val titleView = TextView(context).apply {
                 text = title
-                textSize = 18f
+                textSize = 17f
                 setTextColor(Color.WHITE)
                 isFakeBoldText = true
+                letterSpacing = 0.05f
             }
             addView(titleView)
         }
@@ -1796,7 +1906,7 @@ class MainActivity : AppCompatActivity(), OnlineGameListener {
         onlineScoreBoard?.setNames("PLAYER", opponentName)
         onlineScoreBoard?.setupTargetDots(if (bestOf == 5) 3 else 2)
         onlineScoreBoard?.updateScore(0, 0, 1)
-        onlineStatusText?.text = "Match Dimulai! Bersiaplah..."
+        onlineScoreBoard?.setRoundStatus("MATCH DIMULAI • BERSIAPLAH")
     }
 
     override fun onRoundStart(roundNumber: Int, timeoutSeconds: Int) {
@@ -1804,29 +1914,29 @@ class MainActivity : AppCompatActivity(), OnlineGameListener {
         onlineArenaView?.reset()
         onlineMoveCards?.resetSelection()
         onlineMoveCards?.isEnabledSelection = true
-        onlineStatusText?.text = "Pilih elemen Anda! (${timeoutSeconds}s)"
+        onlineScoreBoard?.setRoundStatus("PILIH ELEMEN (${timeoutSeconds}s)")
 
         // Local countdown
         roundTimer?.cancel()
         roundTimer = object : CountDownTimer((timeoutSeconds * 1000).toLong(), 1000) {
             override fun onTick(millisUntilFinished: Long) {
                 val sec = millisUntilFinished / 1000
-                onlineStatusText?.text = "Pilih elemen Anda! (${sec}s)"
+                onlineScoreBoard?.setRoundStatus("PILIH ELEMEN (${sec}s)")
                 RPSApplication.instance.soundManager.playSfx(NativeBridge.SFX_COUNTDOWN)
                 RPSApplication.instance.hapticManager.trigger(NativeBridge.HAPTIC_COUNTDOWN)
             }
             override fun onFinish() {
-                onlineStatusText?.text = "Waktu Habis!"
+                onlineScoreBoard?.setRoundStatus("WAKTU HABIS!")
             }
         }.start()
     }
 
     override fun onOpponentChoosing() {
-        onlineStatusText?.text = getString(R.string.status_opponent_choosing)
+        onlineScoreBoard?.setRoundStatus("LAWAN SEDANG MEMILIH...")
     }
 
     override fun onOpponentChose() {
-        onlineStatusText?.text = "Lawan telah memilih!"
+        onlineScoreBoard?.setRoundStatus("LAWAN TELAH MEMILIH!")
     }
 
     override fun onRoundResult(
@@ -1839,25 +1949,23 @@ class MainActivity : AppCompatActivity(), OnlineGameListener {
     ) {
         roundTimer?.cancel()
         onlineMoveCards?.isEnabledSelection = false
+        currentMatchRound = round
 
         onlineArenaView?.startClashAnimation(playerMove, opponentMove, result) {
             onlineScoreBoard?.updateScore(myScore, oppScore, round + 1)
             when (result) {
                 NativeBridge.RESULT_WIN -> {
-                    onlineStatusText?.text = getString(R.string.result_win)
-                    onlineStatusText?.setTextColor(ContextCompat.getColor(this, R.color.emerald_win))
+                    onlineScoreBoard?.setRoundStatus("MENANG RONDE INI!", "#10B981")
                     RPSApplication.instance.soundManager.playSfx(NativeBridge.SFX_WIN)
                     RPSApplication.instance.hapticManager.trigger(NativeBridge.HAPTIC_WIN)
                 }
                 NativeBridge.RESULT_LOSE -> {
-                    onlineStatusText?.text = getString(R.string.result_lose)
-                    onlineStatusText?.setTextColor(ContextCompat.getColor(this, R.color.ruby_lose))
+                    onlineScoreBoard?.setRoundStatus("KALAH RONDE INI!", "#EF4444")
                     RPSApplication.instance.soundManager.playSfx(NativeBridge.SFX_LOSE)
                     RPSApplication.instance.hapticManager.trigger(NativeBridge.HAPTIC_LOSE)
                 }
                 else -> {
-                    onlineStatusText?.text = getString(R.string.result_draw)
-                    onlineStatusText?.setTextColor(ContextCompat.getColor(this, R.color.amber_draw))
+                    onlineScoreBoard?.setRoundStatus("RONDE SERI!", "#F59E0B")
                     RPSApplication.instance.soundManager.playSfx(NativeBridge.SFX_DRAW)
                     RPSApplication.instance.hapticManager.trigger(NativeBridge.HAPTIC_DRAW)
                 }
@@ -1867,6 +1975,8 @@ class MainActivity : AppCompatActivity(), OnlineGameListener {
 
     override fun onMatchResult(won: Boolean, finalMyScore: Int, finalOppScore: Int) {
         roundTimer?.cancel()
+        val resultState = if (won) NativeBridge.RESULT_WIN else NativeBridge.RESULT_LOSE
+
         NativeBridge.recordMatchResult(
             true, finalMyScore, finalOppScore, 0,
             matchRockCount, matchPaperCount, matchScissorsCount
@@ -1877,16 +1987,16 @@ class MainActivity : AppCompatActivity(), OnlineGameListener {
         Handler(Looper.getMainLooper()).postDelayed({
             CustomDialogs.showMatchResultDialog(
                 this,
-                won,
-                if (won) getString(R.string.match_victory) else getString(R.string.match_defeat),
+                resultState,
                 "$finalMyScore - $finalOppScore",
+                currentMatchRound,
                 onRematch = { wsManager.sendRematchVote() },
                 onExit = {
                     wsManager.sendLeaveMatch()
                     navigateTo(ScreenState.HOME)
                 }
             )
-        }, 800)
+        }, 700)
     }
 
     override fun onRematchRequested() {
@@ -1906,7 +2016,7 @@ class MainActivity : AppCompatActivity(), OnlineGameListener {
     }
 
     override fun onOpponentLeft() {
-        CustomDialogs.showErrorDialog(this, "Lawan Keluar", getString(R.string.error_opponent_disconnected)) {
+        CustomDialogs.showErrorDialog(this, "Lawan Keluar", "Lawan telah meninggalkan pertandingan.") {
             navigateTo(ScreenState.HOME)
         }
     }

@@ -62,23 +62,25 @@ jobs:
           RELEASE_APK=$(ls app/build/outputs/apk/release/*.apk 2>/dev/null | head -n 1)
           DEBUG_APK=$(ls app/build/outputs/apk/debug/*.apk 2>/dev/null | head -n 1)
 
-          # Re-create release with both Release and Debug APKs
-          gh release delete v1.0.0 --yes --repo ${{ github.repository }} 2>/dev/null || true
-          git tag -d v1.0.0 2>/dev/null || true
+          cat << 'EOF' > release_notes.md
+          ### 🚀 RPS Clash (Batu Gunting Kertas) - Official Release v1.0.0
+
+          ### 📦 Unduh File APK:
+          - **app-release.apk** (⭐ Signed Production Release APK)
+          - **app-debug.apk** (Debug Build)
+
+          ### 🌟 Fitur Utama:
+          - **Core C++20 Game Engine & NDK** (`libgamecore.so`)
+          - **AI Adaptif**: Mudah, Normal (*Win-Stay Lose-Shift*), dan Hard (*Markov Chain N-Gram*)
+          - **Real-Time Online Multiplayer** via WebSocket
+          - **Sistem Audio Synthesized & Subtle Haptics**
+          - **Statistik Persisten Lokal** (VS AI & Online)
+          - **Support Semua Android** (Android 5.0 Lollipop hingga Android 15+)
+          EOF
+
+          gh release delete v1.0.0 --yes --cleanup-tag --repo ${{ github.repository }} 2>/dev/null || true
 
           gh release create v1.0.0 $RELEASE_APK $DEBUG_APK \
             --title "RPS Clash v1.0.0 (Official Signed Release APK)" \
-            --notes "### 🚀 RPS Clash (Batu Gunting Kertas) - Official Release v1.0.0
-
-### 📦 Unduh File APK:
-- **[app-release.apk](https://github.com/${{ github.repository }}/releases/download/v1.0.0/app-release.apk)** (⭐ Signed Production Release APK)
-- **[app-debug.apk](https://github.com/${{ github.repository }}/releases/download/v1.0.0/app-debug.apk)** (Debug Build)
-
-### 🌟 Fitur Utama:
-- **Core C++20 Game Engine & NDK** (\`libgamecore.so\`)
-- **AI Adaptif**: Mudah, Normal (*Win-Stay Lose-Shift*), dan Hard (*Markov Chain N-Gram*)
-- **Real-Time Online Multiplayer** via WebSocket
-- **Sistem Audio Synthesized & Subtle Haptics**
-- **Statistik Persisten Lokal** (VS AI & Online)
-- **Support Semua Android** (Android 5.0 Lollipop hingga Android 15+)" \
+            --notes-file release_notes.md \
             --repo ${{ github.repository }}
