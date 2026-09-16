@@ -15,9 +15,9 @@ class MoveDistributionBarView @JvmOverloads constructor(
     defStyleAttr: Int = 0
 ) : View(context, attrs, defStyleAttr) {
 
-    private val rockPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = Color.parseColor("#F43F5E") }
-    private val paperPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = Color.parseColor("#38BDF8") }
-    private val scissorsPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = Color.parseColor("#34D399") }
+    private val rockPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = Color.parseColor("#E11D48") }
+    private val paperPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = Color.parseColor("#2563EB") }
+    private val scissorsPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = Color.parseColor("#059669") }
 
     private var rockRatio: Float = 0.333f
     private var paperRatio: Float = 0.333f
@@ -74,13 +74,13 @@ class WinRateGaugeView @JvmOverloads constructor(
     private val bgPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.STROKE
         strokeWidth = 14f
-        color = Color.parseColor("#1E2C44")
+        color = Color.parseColor("#334155")
     }
 
     private val progressPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.STROKE
         strokeWidth = 14f
-        color = Color.parseColor("#00E5FF")
+        color = Color.parseColor("#3B82F6")
         strokeCap = Paint.Cap.ROUND
     }
 

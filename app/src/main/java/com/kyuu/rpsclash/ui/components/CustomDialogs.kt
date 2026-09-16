@@ -36,7 +36,7 @@ object CustomDialogs {
         val layout = LinearLayout(activity).apply {
             orientation = LinearLayout.VERTICAL
             setBackgroundResource(R.drawable.bg_card_surface)
-            setPadding(36, 32, 36, 32)
+            setPadding(32, 28, 32, 28)
             gravity = Gravity.CENTER_HORIZONTAL
             layoutParams = ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
@@ -45,7 +45,7 @@ object CustomDialogs {
 
             val title = TextView(activity).apply {
                 text = "GABUNG ROOM"
-                textSize = 17f
+                textSize = 16f
                 setTextColor(Color.WHITE)
                 typeface = Typeface.DEFAULT_BOLD
                 gravity = Gravity.CENTER
@@ -60,7 +60,7 @@ object CustomDialogs {
                 layoutParams = LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.WRAP_CONTENT,
                     LinearLayout.LayoutParams.WRAP_CONTENT
-                ).apply { topMargin = 6 }
+                ).apply { topMargin = 4 }
             }
             addView(subtitle)
 
@@ -77,18 +77,18 @@ object CustomDialogs {
 
                 val bg = GradientDrawable().apply {
                     shape = GradientDrawable.RECTANGLE
-                    setColor(Color.parseColor("#0B0F17"))
-                    cornerRadius = 14f
-                    setStroke(2, Color.parseColor("#23334D"))
+                    setColor(Color.parseColor("#0F172A"))
+                    cornerRadius = 12f
+                    setStroke(1, Color.parseColor("#334155"))
                 }
                 background = bg
-                setPadding(24, 18, 24, 18)
+                setPadding(20, 16, 20, 16)
                 layoutParams = LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT,
                     LinearLayout.LayoutParams.WRAP_CONTENT
                 ).apply {
-                    topMargin = 20
-                    bottomMargin = 24
+                    topMargin = 18
+                    bottomMargin = 20
                 }
             }
             addView(input)
@@ -101,8 +101,8 @@ object CustomDialogs {
                     text = "BATAL"
                     setTextColor(Color.parseColor("#94A3B8"))
                     setBackgroundResource(R.drawable.bg_pill)
-                    layoutParams = LinearLayout.LayoutParams(0, 116, 1f).apply {
-                        marginEnd = 12
+                    layoutParams = LinearLayout.LayoutParams(0, 110, 1f).apply {
+                        marginEnd = 10
                     }
                     setOnClickListener {
                         RPSApplication.instance.soundManager.playSfx(NativeBridge.SFX_TAP)
@@ -113,10 +113,10 @@ object CustomDialogs {
 
                 val btnJoin = Button(activity).apply {
                     text = "GABUNG"
-                    setTextColor(Color.BLACK)
+                    setTextColor(Color.WHITE)
                     typeface = Typeface.DEFAULT_BOLD
                     setBackgroundResource(R.drawable.bg_button_primary)
-                    layoutParams = LinearLayout.LayoutParams(0, 116, 1f)
+                    layoutParams = LinearLayout.LayoutParams(0, 110, 1f)
                     setOnClickListener {
                         val code = input.text.toString().trim()
                         if (code.length >= 4) {
@@ -175,7 +175,7 @@ object CustomDialogs {
         val layout = LinearLayout(activity).apply {
             orientation = LinearLayout.VERTICAL
             gravity = Gravity.CENTER_HORIZONTAL
-            setPadding(36, 32, 36, 32)
+            setPadding(32, 28, 32, 28)
             layoutParams = ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT
@@ -183,15 +183,15 @@ object CustomDialogs {
 
             val cardBg = GradientDrawable().apply {
                 shape = GradientDrawable.RECTANGLE
-                setColor(Color.parseColor("#162032"))
-                cornerRadius = 18f
-                setStroke(2, accentColor)
+                setColor(Color.parseColor("#1E293B"))
+                cornerRadius = 16f
+                setStroke(1, accentColor)
             }
             background = cardBg
 
             // Animated State Icon
             val icon = ImageView(activity).apply {
-                layoutParams = LinearLayout.LayoutParams(64, 64).apply { bottomMargin = 14 }
+                layoutParams = LinearLayout.LayoutParams(56, 56).apply { bottomMargin = 12 }
                 setImageDrawable(ContextCompat.getDrawable(activity, iconRes))
             }
             addView(icon)
@@ -199,10 +199,10 @@ object CustomDialogs {
             // Result Title
             val title = TextView(activity).apply {
                 text = titleText
-                textSize = 22f
+                textSize = 20f
                 setTextColor(accentColor)
                 typeface = Typeface.DEFAULT_BOLD
-                letterSpacing = 0.08f
+                letterSpacing = 0.05f
                 gravity = Gravity.CENTER
             }
             addView(title)
@@ -210,18 +210,18 @@ object CustomDialogs {
             // Score Pill
             val scoreBadge = TextView(activity).apply {
                 text = scoreText
-                textSize = 24f
+                textSize = 22f
                 setTextColor(Color.WHITE)
                 typeface = Typeface.DEFAULT_BOLD
                 gravity = Gravity.CENTER
                 setBackgroundResource(R.drawable.bg_pill)
-                setPadding(32, 8, 32, 8)
+                setPadding(28, 6, 28, 6)
                 layoutParams = LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.WRAP_CONTENT,
                     LinearLayout.LayoutParams.WRAP_CONTENT
                 ).apply {
-                    topMargin = 12
-                    bottomMargin = 8
+                    topMargin = 10
+                    bottomMargin = 6
                 }
             }
             addView(scoreBadge)
@@ -236,7 +236,7 @@ object CustomDialogs {
                     LinearLayout.LayoutParams.WRAP_CONTENT,
                     LinearLayout.LayoutParams.WRAP_CONTENT
                 ).apply {
-                    bottomMargin = 24
+                    bottomMargin = 20
                 }
             }
             addView(roundInfo)
@@ -244,13 +244,13 @@ object CustomDialogs {
             // Rematch Button
             val btnRematch = Button(activity).apply {
                 text = "REMATCH"
-                setTextColor(Color.BLACK)
+                setTextColor(Color.WHITE)
                 typeface = Typeface.DEFAULT_BOLD
                 setBackgroundResource(R.drawable.bg_button_primary)
                 layoutParams = LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT,
-                    114
-                ).apply { bottomMargin = 10 }
+                    110
+                ).apply { bottomMargin = 8 }
                 setOnClickListener {
                     RPSApplication.instance.soundManager.playSfx(NativeBridge.SFX_TAP)
                     dialog.dismiss()
@@ -266,7 +266,7 @@ object CustomDialogs {
                 setBackgroundResource(R.drawable.bg_pill)
                 layoutParams = LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT,
-                    114
+                    110
                 )
                 setOnClickListener {
                     RPSApplication.instance.soundManager.playSfx(NativeBridge.SFX_TAP)
@@ -278,13 +278,13 @@ object CustomDialogs {
         }
 
         // Subtle animation when dialog opens
-        val scaleX = ObjectAnimator.ofFloat(layout, View.SCALE_X, 0.88f, 1.0f)
-        val scaleY = ObjectAnimator.ofFloat(layout, View.SCALE_Y, 0.88f, 1.0f)
+        val scaleX = ObjectAnimator.ofFloat(layout, View.SCALE_X, 0.90f, 1.0f)
+        val scaleY = ObjectAnimator.ofFloat(layout, View.SCALE_Y, 0.90f, 1.0f)
         val alpha = ObjectAnimator.ofFloat(layout, View.ALPHA, 0.0f, 1.0f)
         AnimatorSet().apply {
             playTogether(scaleX, scaleY, alpha)
-            duration = 240
-            interpolator = if (resultState == NativeBridge.RESULT_WIN) OvershootInterpolator(1.2f) else DecelerateInterpolator()
+            duration = 200
+            interpolator = if (resultState == NativeBridge.RESULT_WIN) OvershootInterpolator(1.15f) else DecelerateInterpolator()
             start()
         }
 
@@ -301,7 +301,7 @@ object CustomDialogs {
         val layout = LinearLayout(activity).apply {
             orientation = LinearLayout.VERTICAL
             setBackgroundResource(R.drawable.bg_card_surface)
-            setPadding(32, 28, 32, 28)
+            setPadding(28, 24, 28, 24)
             gravity = Gravity.CENTER_HORIZONTAL
             layoutParams = ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
@@ -310,7 +310,7 @@ object CustomDialogs {
 
             val titleView = TextView(activity).apply {
                 text = title
-                textSize = 16f
+                textSize = 15f
                 setTextColor(Color.parseColor("#EF4444"))
                 typeface = Typeface.DEFAULT_BOLD
                 gravity = Gravity.CENTER
@@ -322,25 +322,25 @@ object CustomDialogs {
                 textSize = 13f
                 setTextColor(Color.parseColor("#94A3B8"))
                 gravity = Gravity.CENTER
-                setLineSpacing(0f, 1.25f)
+                setLineSpacing(0f, 1.2f)
                 layoutParams = LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT,
                     LinearLayout.LayoutParams.WRAP_CONTENT
                 ).apply {
-                    topMargin = 10
-                    bottomMargin = 20
+                    topMargin = 8
+                    bottomMargin = 18
                 }
             }
             addView(msgView)
 
             val btnOk = Button(activity).apply {
                 text = "MENGERTI"
-                setTextColor(Color.BLACK)
+                setTextColor(Color.WHITE)
                 typeface = Typeface.DEFAULT_BOLD
                 setBackgroundResource(R.drawable.bg_button_primary)
                 layoutParams = LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT,
-                    110
+                    106
                 )
                 setOnClickListener {
                     RPSApplication.instance.soundManager.playSfx(NativeBridge.SFX_TAP)

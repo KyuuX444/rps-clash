@@ -1,38 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Backgrounds (Deep Obsidian Theme) -->
-    <color name="bg_main">#0B0F17</color>
-    <color name="bg_surface">#131B2A</color>
-    <color name="bg_surface_card">#162032</color>
-    <color name="bg_surface_elevated">#1E2C44</color>
-    <color name="bg_border">#23334D</color>
-    <color name="bg_glass_stroke">#2A3C5A</color>
+    <!-- Backgrounds (Modern Matte Slate - Non-Neon) -->
+    <color name="bg_main">#0F172A</color>
+    <color name="bg_surface">#1E293B</color>
+    <color name="bg_surface_card">#1E293B</color>
+    <color name="bg_surface_elevated">#334155</color>
+    <color name="bg_border">#334155</color>
+    <color name="bg_glass_stroke">#475569</color>
 
-    <!-- Unified Accent Palette (Clean, Minimal, Premium) -->
-    <color name="accent_primary">#00E5FF</color>
-    <color name="accent_primary_dim">#14374A</color>
-    <color name="accent_secondary">#8B5CF6</color>
-    <color name="accent_secondary_dim">#261D42</color>
+    <!-- Unified Accent Palette (Clean, Minimal, Matte Game-like) -->
+    <color name="accent_primary">#3B82F6</color>
+    <color name="accent_primary_dim">#1D4ED8</color>
+    <color name="accent_secondary">#64748B</color>
+    <color name="accent_secondary_dim">#475569</color>
 
-    <!-- Semantic State Colors -->
+    <!-- Semantic State Colors (Clean Solid) -->
     <color name="state_win">#10B981</color>
-    <color name="state_win_dim">#133B2E</color>
+    <color name="state_win_dim">#064E3B</color>
     <color name="state_lose">#EF4444</color>
-    <color name="state_lose_dim">#3B1A20</color>
+    <color name="state_lose_dim">#7F1D1D</color>
     <color name="state_draw">#F59E0B</color>
-    <color name="state_draw_dim">#3B2A14</color>
+    <color name="state_draw_dim">#78350F</color>
 
-    <!-- Backward Compatibility Aliases -->
-    <color name="neon_cyan">#00E5FF</color>
-    <color name="neon_magenta">#8B5CF6</color>
+    <!-- Compatibility Aliases (Mapped to Non-Neon Palette) -->
+    <color name="neon_cyan">#3B82F6</color>
+    <color name="neon_cyan_dark">#1D4ED8</color>
+    <color name="neon_magenta">#64748B</color>
+    <color name="neon_purple">#475569</color>
     <color name="emerald_win">#10B981</color>
     <color name="ruby_lose">#EF4444</color>
     <color name="amber_draw">#F59E0B</color>
 
-    <!-- Move Identity Colors -->
-    <color name="move_rock">#F43F5E</color>
-    <color name="move_paper">#38BDF8</color>
-    <color name="move_scissors">#34D399</color>
+    <!-- Move Identity Colors (Clean Flat) -->
+    <color name="move_rock">#E11D48</color>
+    <color name="move_paper">#2563EB</color>
+    <color name="move_scissors">#059669</color>
 
     <!-- Typography -->
     <color name="text_primary">#F8FAFC</color>

@@ -21,31 +21,31 @@ class ArenaHandsView @JvmOverloads constructor(
     private val paperDrawable: Drawable? = ContextCompat.getDrawable(context, R.drawable.ic_paper)
     private val scissorsDrawable: Drawable? = ContextCompat.getDrawable(context, R.drawable.ic_scissors)
 
-    private val glowPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+    private val borderPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.STROKE
-        strokeWidth = 3f
+        strokeWidth = 2f
     }
 
     private val ringPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.STROKE
         strokeWidth = 1.5f
-        color = Color.parseColor("#1E2C44")
-        pathEffect = DashPathEffect(floatArrayOf(12f, 12f), 0f)
+        color = Color.parseColor("#334155")
+        pathEffect = DashPathEffect(floatArrayOf(10f, 10f), 0f)
     }
 
     private val shockwavePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.STROKE
-        strokeWidth = 3f
+        strokeWidth = 2.5f
     }
 
     private val cardPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.FILL
-        color = Color.parseColor("#162032")
+        color = Color.parseColor("#1E293B")
     }
 
     private val textPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         color = Color.parseColor("#64748B")
-        textSize = 36f
+        textSize = 34f
         textAlign = Paint.Align.CENTER
         typeface = Typeface.DEFAULT_BOLD
     }
@@ -67,11 +67,11 @@ class ArenaHandsView @JvmOverloads constructor(
         shockwaveRadius = 0f
 
         val animator = ValueAnimator.ofFloat(0f, 1f).apply {
-            duration = 600
-            interpolator = OvershootInterpolator(1.1f)
+            duration = 550
+            interpolator = OvershootInterpolator(1.08f)
             addUpdateListener {
                 clashProgress = it.animatedFraction
-                shockwaveRadius = clashProgress * width * 0.38f
+                shockwaveRadius = clashProgress * width * 0.35f
                 invalidate()
             }
         }
@@ -79,7 +79,7 @@ class ArenaHandsView @JvmOverloads constructor(
         postDelayed({
             isClashing = false
             onComplete()
-        }, 650)
+        }, 600)
     }
 
     fun reset() {
@@ -102,9 +102,9 @@ class ArenaHandsView @JvmOverloads constructor(
         // Center Arena Battle Ring
         canvas.drawCircle(cx, cy, cardSize * 1.15f, ringPaint)
 
-        // Shockwave effect on collision
+        // Subtle shockwave effect on collision
         if (isClashing && clashProgress > 0.35f) {
-            val alpha = ((1f - (clashProgress - 0.35f) / 0.65f) * 255).toInt().coerceIn(0, 255)
+            val alpha = ((1f - (clashProgress - 0.35f) / 0.65f) * 220).toInt().coerceIn(0, 255)
             val shockColor = when (roundResult) {
                 NativeBridge.RESULT_WIN -> Color.parseColor("#10B981")
                 NativeBridge.RESULT_LOSE -> Color.parseColor("#EF4444")
@@ -112,7 +112,7 @@ class ArenaHandsView @JvmOverloads constructor(
             }
             shockwavePaint.color = shockColor
             shockwavePaint.alpha = alpha
-            shockwavePaint.strokeWidth = 6f * (1f - clashProgress)
+            shockwavePaint.strokeWidth = 4f * (1f - clashProgress)
             canvas.drawCircle(cx, cy, shockwaveRadius, shockwavePaint)
         }
 
@@ -139,20 +139,20 @@ class ArenaHandsView @JvmOverloads constructor(
         val rect = RectF(x - size / 2, y - size / 2, x + size / 2, y + size / 2)
 
         // Background
-        canvas.drawRoundRect(rect, 20f, 20f, cardPaint)
+        canvas.drawRoundRect(rect, 16f, 16f, cardPaint)
 
-        // Border highlighting
+        // Non-neon clean border
         val borderColor = when {
-            move == NativeBridge.MOVE_NONE -> Color.parseColor("#23334D")
-            !isClashing -> Color.parseColor("#00E5FF")
+            move == NativeBridge.MOVE_NONE -> Color.parseColor("#334155")
+            !isClashing -> Color.parseColor("#3B82F6")
             isPlayer && roundResult == NativeBridge.RESULT_WIN -> Color.parseColor("#10B981")
             !isPlayer && roundResult == NativeBridge.RESULT_LOSE -> Color.parseColor("#10B981")
             isPlayer && roundResult == NativeBridge.RESULT_LOSE -> Color.parseColor("#EF4444")
             !isPlayer && roundResult == NativeBridge.RESULT_WIN -> Color.parseColor("#EF4444")
             else -> Color.parseColor("#F59E0B")
         }
-        glowPaint.color = borderColor
-        canvas.drawRoundRect(rect, 20f, 20f, glowPaint)
+        borderPaint.color = borderColor
+        canvas.drawRoundRect(rect, 16f, 16f, borderPaint)
 
         // Draw Icon
         val drawable = when (move) {

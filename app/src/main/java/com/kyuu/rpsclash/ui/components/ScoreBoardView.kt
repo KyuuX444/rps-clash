@@ -56,7 +56,7 @@ class ScoreBoardView @JvmOverloads constructor(
             layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT)
 
             val oppIcon = ImageView(context).apply {
-                layoutParams = LayoutParams(32, 32).apply { marginEnd = 8 }
+                layoutParams = LayoutParams(30, 30).apply { marginEnd = 8 }
                 setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_robot))
             }
             addView(oppIcon)
@@ -123,11 +123,11 @@ class ScoreBoardView @JvmOverloads constructor(
             gravity = Gravity.CENTER
             layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT).apply {
                 topMargin = 4
-                bottomMargin = 12
+                bottomMargin = 10
             }
 
             val pIcon = ImageView(context).apply {
-                layoutParams = LayoutParams(32, 32).apply { marginEnd = 8 }
+                layoutParams = LayoutParams(30, 30).apply { marginEnd = 8 }
                 setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_user))
             }
             addView(pIcon)
@@ -135,7 +135,7 @@ class ScoreBoardView @JvmOverloads constructor(
             playerNameText = TextView(context).apply {
                 text = "PLAYER"
                 textSize = 13f
-                setTextColor(Color.parseColor("#00E5FF"))
+                setTextColor(Color.parseColor("#3B82F6"))
                 typeface = Typeface.DEFAULT_BOLD
                 letterSpacing = 0.05f
             }
@@ -152,7 +152,7 @@ class ScoreBoardView @JvmOverloads constructor(
         }
 
         playerStatusViewInstance = playerRow
-        updateDots(playerDotsLayout!!, currentPlayerScore, Color.parseColor("#00E5FF"))
+        updateDots(playerDotsLayout!!, currentPlayerScore, Color.parseColor("#3B82F6"))
         return playerRow
     }
 
@@ -163,9 +163,9 @@ class ScoreBoardView @JvmOverloads constructor(
 
     fun setupTargetDots(target: Int) {
         targetWins = target
-        updateDots(opponentDotsLayout, currentOpponentScore, Color.parseColor("#8B5CF6"))
+        updateDots(opponentDotsLayout, currentOpponentScore, Color.parseColor("#64748B"))
         playerDotsLayout?.let {
-            updateDots(it, currentPlayerScore, Color.parseColor("#00E5FF"))
+            updateDots(it, currentPlayerScore, Color.parseColor("#3B82F6"))
         }
     }
 
@@ -177,9 +177,9 @@ class ScoreBoardView @JvmOverloads constructor(
         roundPill.text = "RONDE $round"
         roundPill.setTextColor(ContextCompat.getColor(context, R.color.accent_primary))
 
-        updateDots(opponentDotsLayout, opponentScore, Color.parseColor("#8B5CF6"))
+        updateDots(opponentDotsLayout, opponentScore, Color.parseColor("#64748B"))
         playerDotsLayout?.let {
-            updateDots(it, playerScore, Color.parseColor("#00E5FF"))
+            updateDots(it, playerScore, Color.parseColor("#3B82F6"))
         }
     }
 
@@ -194,8 +194,8 @@ class ScoreBoardView @JvmOverloads constructor(
         container.removeAllViews()
         for (i in 0 until targetWins) {
             val dot = View(context).apply {
-                val size = 18
-                val margin = 6
+                val size = 16
+                val margin = 5
                 layoutParams = LayoutParams(size, size).apply {
                     setMargins(margin, 0, margin, 0)
                 }
@@ -204,8 +204,8 @@ class ScoreBoardView @JvmOverloads constructor(
                     if (i < score) {
                         setColor(activeColor)
                     } else {
-                        setColor(Color.parseColor("#1E2C44"))
-                        setStroke(1, Color.parseColor("#2A3C5A"))
+                        setColor(Color.parseColor("#1E293B"))
+                        setStroke(1, Color.parseColor("#334155"))
                     }
                 }
                 background = bg

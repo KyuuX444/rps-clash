@@ -37,34 +37,34 @@ class MoveCardsView @JvmOverloads constructor(
         gravity = Gravity.CENTER
         weightSum = 3f
 
-        addView(createCard(NativeBridge.MOVE_ROCK, "Batu", R.drawable.ic_rock, "#F43F5E"))
-        addView(createCard(NativeBridge.MOVE_PAPER, "Kertas", R.drawable.ic_paper, "#38BDF8"))
-        addView(createCard(NativeBridge.MOVE_SCISSORS, "Gunting", R.drawable.ic_scissors, "#34D399"))
+        addView(createCard(NativeBridge.MOVE_ROCK, "Batu", R.drawable.ic_rock, "#E11D48"))
+        addView(createCard(NativeBridge.MOVE_PAPER, "Kertas", R.drawable.ic_paper, "#2563EB"))
+        addView(createCard(NativeBridge.MOVE_SCISSORS, "Gunting", R.drawable.ic_scissors, "#059669"))
     }
 
     private fun createCard(move: Int, label: String, iconRes: Int, accentHex: String): View {
         val container = LinearLayout(context).apply {
             layoutParams = LayoutParams(0, LayoutParams.WRAP_CONTENT, 1f).apply {
-                setMargins(10, 0, 10, 0)
+                setMargins(8, 0, 8, 0)
             }
             orientation = VERTICAL
             gravity = Gravity.CENTER
-            setPadding(16, 20, 16, 20)
+            setPadding(14, 18, 14, 18)
             isClickable = true
             isFocusable = true
 
-            // Styled Card Background
+            // Clean Matte Card Background
             val normalBg = GradientDrawable().apply {
                 shape = GradientDrawable.RECTANGLE
-                setColor(Color.parseColor("#162032"))
-                cornerRadius = 16f
-                setStroke(2, Color.parseColor("#23334D"))
+                setColor(Color.parseColor("#1E293B"))
+                cornerRadius = 14f
+                setStroke(1, Color.parseColor("#334155"))
             }
             background = normalBg
 
             val icon = ImageView(context).apply {
-                layoutParams = LayoutParams(64, 64).apply {
-                    bottomMargin = 10
+                layoutParams = LayoutParams(56, 56).apply {
+                    bottomMargin = 8
                 }
                 setImageDrawable(ContextCompat.getDrawable(context, iconRes))
             }
@@ -87,9 +87,9 @@ class MoveCardsView @JvmOverloads constructor(
                 RPSApplication.instance.soundManager.playSfx(NativeBridge.SFX_SELECT)
 
                 // Spring micro-animation
-                animate().scaleX(0.92f).scaleY(0.92f).setDuration(70).withEndAction {
-                    animate().scaleX(1.0f).scaleY(1.0f).setDuration(120)
-                        .setInterpolator(OvershootInterpolator(1.3f))
+                animate().scaleX(0.93f).scaleY(0.93f).setDuration(60).withEndAction {
+                    animate().scaleX(1.0f).scaleY(1.0f).setDuration(100)
+                        .setInterpolator(OvershootInterpolator(1.2f))
                         .start()
                 }.start()
 
@@ -103,23 +103,23 @@ class MoveCardsView @JvmOverloads constructor(
 
     fun selectMove(move: Int) {
         selectedMove = move
-        val accentColors = listOf("#F43F5E", "#38BDF8", "#34D399")
+        val accentColors = listOf("#E11D48", "#2563EB", "#059669")
 
         cardViews.forEachIndexed { index, view ->
             val isSelected = (index == move)
             val bg = GradientDrawable().apply {
                 shape = GradientDrawable.RECTANGLE
-                setColor(if (isSelected) Color.parseColor("#1E2C44") else Color.parseColor("#162032"))
-                cornerRadius = 16f
+                setColor(if (isSelected) Color.parseColor("#334155") else Color.parseColor("#1E293B"))
+                cornerRadius = 14f
                 setStroke(
-                    if (isSelected) 3 else 2,
-                    if (isSelected) Color.parseColor(accentColors[index]) else Color.parseColor("#23334D")
+                    if (isSelected) 2 else 1,
+                    if (isSelected) Color.parseColor(accentColors[index]) else Color.parseColor("#334155")
                 )
             }
             view.background = bg
             view.alpha = if (isSelected) 1.0f else 0.55f
-            view.scaleX = if (isSelected) 1.04f else 1.0f
-            view.scaleY = if (isSelected) 1.04f else 1.0f
+            view.scaleX = if (isSelected) 1.03f else 1.0f
+            view.scaleY = if (isSelected) 1.03f else 1.0f
         }
     }
 
@@ -128,9 +128,9 @@ class MoveCardsView @JvmOverloads constructor(
         cardViews.forEach { view ->
             val normalBg = GradientDrawable().apply {
                 shape = GradientDrawable.RECTANGLE
-                setColor(Color.parseColor("#162032"))
-                cornerRadius = 16f
-                setStroke(2, Color.parseColor("#23334D"))
+                setColor(Color.parseColor("#1E293B"))
+                cornerRadius = 14f
+                setStroke(1, Color.parseColor("#334155"))
             }
             view.background = normalBg
             view.alpha = 1.0f
