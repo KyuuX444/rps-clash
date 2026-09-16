@@ -159,7 +159,7 @@ RPSClash/
 
 ## 🌐 Koneksi ke Server Online
 
-Backend server WebSocket terpisah berada pada direktori `../rps-clash-server`.
+Backend server WebSocket terpisah tersedia di repository: [**KyuuX444/rps-clash-server**](https://github.com/KyuuX444/rps-clash-server).
 1. Jalankan server WebSocket di komputer atau VPS Anda (`npm start`).
 2. Masuk ke **Pengaturan** di dalam game.
 3. Masukkan WebSocket Server URL:
