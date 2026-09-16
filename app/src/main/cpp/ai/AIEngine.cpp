@@ -1,4 +1,6 @@
 #include "AIEngine.hpp"
+#include "../game/Result.hpp"
+#include "../game/GameCore.hpp"
 #include "../utils/Random.hpp"
 #include <map>
 #include <algorithm>

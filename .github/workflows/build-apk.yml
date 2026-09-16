@@ -7,6 +7,9 @@ on:
     branches: [ main, master ]
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build:
     name: Build Native Android APK
@@ -34,7 +37,7 @@ jobs:
       - name: Build Debug APK
         run: ./gradlew assembleDebug --stacktrace
 
-      - name: Upload Debug APK
+      - name: Upload Debug APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: RPSClash-Debug-APK
@@ -44,10 +47,30 @@ jobs:
       - name: Build Release APK
         run: ./gradlew assembleRelease --stacktrace || true
 
-      - name: Upload Release APK
+      - name: Upload Release APK Artifact
         uses: actions/upload-artifact@v4
         if: always()
         with:
           name: RPSClash-Release-APK
           path: app/build/outputs/apk/release/*.apk
           retention-days: 14
+
+      - name: Publish to GitHub Releases
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          APK_PATH=$(ls app/build/outputs/apk/debug/*.apk | head -n 1)
+          if [ -f "$APK_PATH" ]; then
+            gh release create v1.0.0 "$APK_PATH" \
+              --title "RPS Clash v1.0.0 (Native Android APK)" \
+              --notes "### RPS Clash (Batu Gunting Kertas) - Native Android Game
+          - Core C++20 Game Engine & NDK
+          - AI Adaptif (Mudah, Normal, Hard dengan Markov Chain)
+          - Real-Time Online Multiplayer via WebSocket
+          - Native Sound System & Subtle Haptics
+          - Local Statistics Persistence
+          - Support All Android Devices (Android 5.0 Lollipop - Android 15+)
+
+          Unduh file APK di bawah ini dan pasang langsung di HP Android Anda!" \
+              --repo ${{ github.repository }} || gh release upload v1.0.0 "$APK_PATH" --clobber --repo ${{ github.repository }}
+          fi
